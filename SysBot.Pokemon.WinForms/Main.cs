@@ -3,6 +3,7 @@ using SysBot.Base;
 using SysBot.Pokemon.Helpers;
 using SysBot.Pokemon.WinForms.Properties;
 using SysBot.Pokemon.Z3;
+using SysBot.Web;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -130,6 +131,10 @@ namespace SysBot.Pokemon.WinForms
             UpdateBackgroundImage(Config.Mode);
 
             LogUtil.LogInfo($"Bot initialization complete", "System");
+
+            // Web-API starten auf Port 6500
+            WebApiIntegration.StartWebApi(RunningEnvironment, 6500);
+            LogUtil.LogInfo("Web-API wurde auf Port 6500 gestartet.", "WebServer");
         }
 
         #region Enhanced Search Implementation
