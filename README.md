@@ -94,6 +94,62 @@ For support on setting up your own instance of PokeBot, feel free to join the di
 - Legends Arceus (PLA)
 - Scarlet/Violet (SV)
 - Let's Go Pikachu/Eevee (LGPE)
+
+# 🌐 Web API Integration
+
+This PokeBot fork includes an integrated **Web API** that provides remote control and monitoring capabilities through HTTP endpoints.
+
+## 🚀 Features
+
+- **Automatic Startup**: Web API starts automatically on port 6500 when the bot launches
+- **Bot Control**: Start, stop, and restart individual bots or all bots remotely
+- **Live Monitoring**: Real-time bot status and log monitoring
+- **Multi-Instance Support**: Manage multiple bot instances from a single dashboard
+- **CORS Enabled**: Cross-origin requests supported for web interfaces
+
+## 📡 API Endpoints
+
+### Status & Health
+- `GET /api/healthcheck` - API health status
+- `GET /api/botinfo` - Bot count and running status
+
+### Bot Management
+- `GET /api/bots` - List all configured bots with status
+- `POST /api/bots/{id}/start` - Start specific bot
+- `POST /api/bots/{id}/stop` - Stop specific bot
+- `POST /api/bots/{id}/rebootAndStop` - Reboot and stop specific bot
+- `POST /api/bots/startAll` - Start all bots
+- `POST /api/bots/stopAll` - Stop all bots
+
+### Logs & Monitoring
+- `GET /api/logs?lines=100` - Retrieve recent log entries
+- `GET /api/instances` - List known bot instances
+- `GET /api/instances/check` - Check status of all instances
+
+### Instance Management
+- `POST /api/instances/add` - Add new bot instance to monitoring
+- `POST /api/instances/remove` - Remove bot instance from monitoring
+
+## 🔧 Usage
+
+The Web API starts automatically when you launch PokeBot:
+
+## ⚙️ Configuration
+
+- **Default Port**: 6500 (automatically finds next available port if occupied)
+- **Access**: Local network access (`127.0.0.1` and `[::1]`)
+- **Auto-Discovery**: Ports 6500-6509 are tried automatically
+
+## 🔗 Integration
+
+Perfect for:
+- **Web Dashboards**: Build custom monitoring interfaces
+- **Home Automation**: Integrate with Home Assistant, Node-RED, etc.
+- **Discord Bots**: Create custom bot management commands
+- **Mobile Apps**: Control your bots from anywhere on your network
+- **Monitoring Tools**: Set up alerts and notifications
+
+The Web API makes it easy to build custom tools and interfaces around your PokeBot setup!
   
 
 # License
