@@ -29,6 +29,33 @@ Control all of your bots with a simple to use control panel via `http://localhos
 
 ![image](https://github.com/user-attachments/assets/3a30b334-955c-4fb3-b7d8-60cd005a2e18)
 
+
+# 📱 Access PokeBot from Any Device on Your Network
+
+## Quick Setup
+
+### 1. Enable Network Access (choose one):
+- **Option A:** Right-click PokeBot.exe → Run as Administrator
+- **Option B:** Run in admin cmd: `netsh http add urlacl url=http://+:8080/ user=Everyone`
+
+### 2. Allow Through Firewall:
+Run in admin cmd:
+```cmd
+netsh advfirewall firewall add rule name="PokeBot Web" dir=in action=allow protocol=TCP localport=8080
+```
+
+### 3. Connect From Your Phone:
+- Get your PC's IP: `ipconfig` (look for IPv4 Address)
+- On your phone: `http://YOUR-PC-IP:8080`
+- Example: `http://192.168.1.100:8080`
+
+## Requirements
+- Same WiFi network
+- Windows Firewall rule (step 2)
+- Admin rights (first time only)
+
+---
+
 # Pokémon Trading Bot Commands
 
 ## Core Trading Commands

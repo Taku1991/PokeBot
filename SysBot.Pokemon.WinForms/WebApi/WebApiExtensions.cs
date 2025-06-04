@@ -35,12 +35,41 @@ public static class WebApiExtensions
                 return;
             }
 
+            // Try to add URL reservation for network access
+            TryAddUrlReservation(WebPort);
+
             _tcpPort = FindAvailablePort(8081);
             StartFullServer();
         }
         catch (Exception ex)
         {
             LogUtil.LogError($"Failed to initialize web server: {ex.Message}", "WebServer");
+        }
+    }
+
+    private static bool TryAddUrlReservation(int port)
+    {
+        try
+        {
+            var startInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "netsh",
+                Arguments = $"http add urlacl url=http://+:{port}/ user=Everyone",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                Verb = "runas" // Request admin privileges
+            };
+
+            using var process = System.Diagnostics.Process.Start(startInfo);
+            process?.WaitForExit(5000);
+            return process?.ExitCode == 0;
+        }
+        catch
+        {
+            // If we can't add the reservation, the server will fall back to localhost
+            return false;
         }
     }
 
@@ -305,10 +334,10 @@ public static class WebApiExtensions
 
         if (flpBotsField?.GetValue(_main) is FlowLayoutPanel flpBots)
         {
-            return flpBots.Controls.OfType<BotController>().ToList();
+            return [.. flpBots.Controls.OfType<BotController>()];
         }
 
-        return new List<BotController>();
+        return [];
     }
 
     private static ProgramConfig? GetConfig()

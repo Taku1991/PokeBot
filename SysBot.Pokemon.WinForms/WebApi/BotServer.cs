@@ -423,9 +423,28 @@ public class BotServer : IDisposable
         try
         {
             _listener = new HttpListener();
-            _listener.Prefixes.Add($"http://localhost:{_port}/");
-            _listener.Prefixes.Add($"http://127.0.0.1:{_port}/");
-            _listener.Start();
+
+            // Try to listen on all interfaces first
+            try
+            {
+                _listener.Prefixes.Add($"http://+:{_port}/");
+                _listener.Start();
+                LogUtil.LogInfo($"Web server listening on all interfaces at port {_port}", "WebServer");
+            }
+            catch (HttpListenerException ex) when (ex.ErrorCode == 5)
+            {
+                // Access denied - need admin rights
+                _listener = new HttpListener();
+                _listener.Prefixes.Add($"http://localhost:{_port}/");
+                _listener.Prefixes.Add($"http://127.0.0.1:{_port}/");
+                _listener.Start();
+
+                LogUtil.LogError($"Web server requires administrator privileges for network access. Currently limited to localhost only.", "WebServer");
+                LogUtil.LogInfo("To enable network access, either:", "WebServer");
+                LogUtil.LogInfo("1. Run this application as Administrator", "WebServer");
+                LogUtil.LogInfo("2. Or run this command as admin: netsh http add urlacl url=http://+:8080/ user=Everyone", "WebServer");
+            }
+
             _running = true;
 
             _listenerThread = new Thread(Listen)
@@ -608,7 +627,7 @@ public class BotServer : IDisposable
         };
     }
 
-    private static List<BotInstance> ScanRemoteInstances()
+    private List<BotInstance> ScanRemoteInstances()
     {
         var instances = new List<BotInstance>();
         var currentPid = Environment.ProcessId;
@@ -853,7 +872,7 @@ public class BotServer : IDisposable
             {
                 var sendAllMethod = _mainForm.GetType().GetMethod("SendAll",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                sendAllMethod?.Invoke(_mainForm, [cmd]);
+                sendAllMethod?.Invoke(_mainForm, new object[] { cmd });
             }));
 
             return JsonSerializer.Serialize(new CommandResponse
@@ -924,7 +943,7 @@ public class BotServer : IDisposable
             return [.. flpBots.Controls.OfType<BotController>()];
         }
 
-        return [];
+        return new List<BotController>();
     }
 
     private ProgramConfig? GetConfig()
