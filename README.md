@@ -15,6 +15,12 @@ For support on setting up your own instance of PokeBot, feel free to join the di
 ![image](https://github.com/user-attachments/assets/9cd4dd57-0095-4353-8fba-5cb5b9417bd6)
 
 # Noteworthy Features
+- **Locally Hosted Control Panel** 
+Control all of your bots with a simple to use control panel via `http://localhost:8080` on your host machine.
+
+![image](https://github.com/user-attachments/assets/27dbad7a-52f6-4311-8949-4c50ec444cf4)
+
+
 - Live Log Searching through the Log tab.  Search for anything and find results fast.
 
 ![image](https://github.com/user-attachments/assets/820d8892-ae52-4aa6-981a-cb57d1c32690)

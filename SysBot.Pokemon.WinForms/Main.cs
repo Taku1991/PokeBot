@@ -23,8 +23,9 @@ namespace SysBot.Pokemon.WinForms
 {
     public sealed partial class Main : Form
     {
-        private readonly List<PokeBotState> Bots = new();
-        private ProgramConfig Config { get; set; }
+        public readonly List<PokeBotState> Bots = new();
+        public IReadOnlyList<PokeBotState> BotStates => Bots.AsReadOnly();
+        public ProgramConfig Config { get; set; }
         private IPokeBotRunner RunningEnvironment { get; set; }
 
         public readonly ISwitchConnectionAsync? SwitchConnection;
@@ -129,7 +130,7 @@ namespace SysBot.Pokemon.WinForms
             InitUtil.InitializeStubs(Config.Mode);
             _isFormLoading = false;
             UpdateBackgroundImage(Config.Mode);
-
+            this.InitWebServer();
             LogUtil.LogInfo($"Bot initialization complete", "System");
 
             // Web-API starten auf Port 6500
@@ -308,7 +309,7 @@ namespace SysBot.Pokemon.WinForms
                 _logoBrush.Dispose();
                 _logoBrush = null;
             }
-
+            this.StopWebServer();
             SaveCurrentConfig();
             var bots = RunningEnvironment;
             if (!bots.IsRunning)
