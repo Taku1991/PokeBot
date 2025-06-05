@@ -17,6 +17,7 @@ public static class WebApiExtensions
     private static BotServer? _server;
     private static TcpListener? _tcp;
     private static CancellationTokenSource? _cts;
+    private static CancellationTokenSource? _monitorCts;
     private static Main? _main;
 
     private const int WebPort = 8080;
@@ -32,6 +33,9 @@ public static class WebApiExtensions
             {
                 _tcpPort = FindAvailablePort(8081);
                 StartTcpOnly();
+
+                // Start monitoring for master failure
+                StartMasterMonitor();
                 return;
             }
 
@@ -44,6 +48,84 @@ public static class WebApiExtensions
         catch (Exception ex)
         {
             LogUtil.LogError($"Failed to initialize web server: {ex.Message}", "WebServer");
+        }
+    }
+
+    private static void StartMasterMonitor()
+    {
+        _monitorCts = new CancellationTokenSource();
+
+        Task.Run(async () =>
+        {
+            var random = new Random();
+
+            while (!_monitorCts.Token.IsCancellationRequested)
+            {
+                try
+                {
+                    // Check every 10-15 seconds (randomized to prevent race conditions)
+                    await Task.Delay(10000 + random.Next(5000), _monitorCts.Token);
+
+                    if (!IsPortInUse(WebPort))
+                    {
+                        LogUtil.LogInfo("Master web server is down. Attempting to take over...", "WebServer");
+
+                        // Wait a random amount to reduce race conditions between multiple slaves
+                        await Task.Delay(random.Next(1000, 3000));
+
+                        // Double-check that no one else took over
+                        if (!IsPortInUse(WebPort))
+                        {
+                            TryTakeOverAsMaster();
+                            break; // Stop monitoring once we've taken over
+                        }
+                    }
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    LogUtil.LogError($"Error in master monitor: {ex.Message}", "WebServer");
+                }
+            }
+        }, _monitorCts.Token);
+    }
+
+    private static void TryTakeOverAsMaster()
+    {
+        try
+        {
+            // Try to add URL reservation
+            TryAddUrlReservation(WebPort);
+
+            // Start the web server
+            _server = new BotServer(_main!, WebPort, _tcpPort);
+            _server.Start();
+
+            // Stop the monitor since we're now the master
+            _monitorCts?.Cancel();
+            _monitorCts = null;
+
+            LogUtil.LogInfo($"Successfully took over as master web server on port {WebPort}", "WebServer");
+            LogUtil.LogInfo($"Web interface is now available at http://localhost:{WebPort}", "WebServer");
+
+            // Show notification to user if possible
+            if (_main != null)
+            {
+                _main.BeginInvoke((MethodInvoker)(() =>
+                {
+                    System.Windows.Forms.MessageBox.Show(
+                        $"This instance has taken over as the master web server.\n\nWeb interface available at:\nhttp://localhost:{WebPort}",
+                        "Master Server Takeover",
+                        System.Windows.Forms.MessageBoxButtons.OK,
+                        System.Windows.Forms.MessageBoxIcon.Information);
+                }));
+            }
+        }
+        catch (Exception ex)
+        {
+            LogUtil.LogError($"Failed to take over as master: {ex.Message}", "WebServer");
+
+            // If we failed, go back to monitoring
+            StartMasterMonitor();
         }
     }
 
@@ -334,10 +416,10 @@ public static class WebApiExtensions
 
         if (flpBotsField?.GetValue(_main) is FlowLayoutPanel flpBots)
         {
-            return [.. flpBots.Controls.OfType<BotController>()];
+            return flpBots.Controls.OfType<BotController>().ToList();
         }
 
-        return [];
+        return new List<BotController>();
     }
 
     private static ProgramConfig? GetConfig()
@@ -357,7 +439,6 @@ public static class WebApiExtensions
     {
         try
         {
-            // Get the TradeBot type from the Helpers namespace
             var tradeBotType = Type.GetType("SysBot.Pokemon.Helpers.PokeBot, SysBot.Pokemon");
             if (tradeBotType != null)
             {

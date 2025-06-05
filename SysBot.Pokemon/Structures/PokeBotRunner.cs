@@ -16,7 +16,6 @@ public interface IPokeBotRunner
 
     bool IsRunning { get; }
 
-    // Add this property to access all bots
     IList<BotSource<PokeBotState>> Bots { get; }
 
     void StartAll();
@@ -48,7 +47,6 @@ public abstract class PokeBotRunner<T> : BotRunner<PokeBotState>, IPokeBotRunner
 
     public PokeTradeHubConfig Config => Hub.Config;
 
-    // Implement the Bots property from IPokeBotRunner by exposing the base class property
     IList<BotSource<PokeBotState>> IPokeBotRunner.Bots => base.Bots;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
