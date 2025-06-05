@@ -1471,10 +1471,16 @@ public class BotServer(Main mainForm, int port = 8080, int tcpPort = 8081) : IDi
 
         try
         {
-            var processes = Process.GetProcessesByName("PokeBot")
+            // Search for both PokeBot and SVRaidBot processes
+            var pokeBotProcesses = Process.GetProcessesByName("PokeBot")
+                .Where(p => p.Id != currentPid);
+            
+            var raidBotProcesses = Process.GetProcessesByName("SVRaidBot")
                 .Where(p => p.Id != currentPid);
 
-            foreach (var process in processes)
+            var allProcesses = pokeBotProcesses.Concat(raidBotProcesses);
+
+            foreach (var process in allProcesses)
             {
                 var instance = TryCreateInstance(process);
                 if (instance != null)
@@ -1497,8 +1503,19 @@ public class BotServer(Main mainForm, int port = 8080, int tcpPort = 8081) : IDi
             if (string.IsNullOrEmpty(exePath))
                 return null;
 
-            var portFile = Path.Combine(Path.GetDirectoryName(exePath)!, $"PokeBot_{process.Id}.port");
-            if (!File.Exists(portFile))
+            var exeDir = Path.GetDirectoryName(exePath)!;
+            
+            // Try both PokeBot and SVRaidBot port file formats
+            var pokeBotPortFile = Path.Combine(exeDir, $"PokeBot_{process.Id}.port");
+            var raidBotPortFile = Path.Combine(exeDir, $"SVRaidBot_{process.Id}.port");
+            
+            string? portFile = null;
+            if (File.Exists(pokeBotPortFile))
+                portFile = pokeBotPortFile;
+            else if (File.Exists(raidBotPortFile))
+                portFile = raidBotPortFile;
+            
+            if (portFile == null)
                 return null;
 
             var portText = File.ReadAllText(portFile).Trim();
@@ -1509,7 +1526,7 @@ public class BotServer(Main mainForm, int port = 8080, int tcpPort = 8081) : IDi
             var instance = new BotInstance
             {
                 ProcessId = process.Id,
-                Name = "PokeBot",
+                Name = process.ProcessName, // Use actual process name
                 Port = port,
                 Version = "Unknown",
                 Mode = "Unknown",
