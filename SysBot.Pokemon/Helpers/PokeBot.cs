@@ -6,10 +6,6 @@ namespace SysBot.Pokemon.Helpers
 
         public const string ConfigPath = "config.json";
 
-<<<<<<< HEAD
-        public const string Version = "v1.0.3a";
-=======
         public const string Version = "v1.0.4";
->>>>>>> upstream/master
     }
 }
