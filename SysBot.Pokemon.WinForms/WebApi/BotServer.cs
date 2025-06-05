@@ -29,7 +29,7 @@ public class BotServer(Main mainForm, int port = 8080, int tcpPort = 8081) : IDi
         <head>
             <meta charset=""UTF-8"">
             <meta name=""viewport"" content=""width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0"">
-            <title>PokeBot Control Center</title>
+            <title>SysBot Control Center</title>
             <style>
                 :root {
                     --bg-primary: #0a0e27;
