@@ -27,114 +27,6 @@ public class BotServer(Main mainForm, int port = 8080, int tcpPort = 8081) : IDi
     private volatile bool _running;
     private string? _htmlTemplate;
 
-<<<<<<< HEAD
-    private const string HtmlTemplate = @"<!DOCTYPE html>
-        <html lang=""en"">
-        <head>
-            <meta charset=""UTF-8"">
-            <meta name=""viewport"" content=""width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0"">
-            <title>SysBot Control Center</title>
-            <style>
-                :root {
-                    --bg-primary: #0a0e27;
-                    --bg-secondary: #151932;
-                    --bg-card: #1e2139;
-                    --bg-hover: #252846;
-                    --text-primary: #ffffff;
-                    --text-secondary: #a8aec0;
-                    --accent: #7c3aed;
-                    --accent-hover: #6d28d9;
-                    --success: #10b981;
-                    --warning: #f59e0b;
-                    --danger: #ef4444;
-                    --border: #2d3054;
-                    --online: #10b981;
-                    --offline: #6b7280;
-                    --idle: #f59e0b;
-                    --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-                    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
-                    --border-radius: 12px;
-                    --border-radius-sm: 8px;
-                    --spacing-xs: 0.25rem;
-                    --spacing-sm: 0.5rem;
-                    --spacing-md: 1rem;
-                    --spacing-lg: 1.5rem;
-                    --spacing-xl: 2rem;
-                }
-        
-                * { 
-                    margin: 0; 
-                    padding: 0; 
-                    box-sizing: border-box; 
-                }
-        
-                body { 
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-                    background: var(--bg-primary); 
-                    color: var(--text-primary); 
-                    line-height: 1.6; 
-                    overflow-x: hidden;
-                    font-size: clamp(14px, 2.5vw, 16px);
-                }
-        
-                .app { 
-                    min-height: 100vh; 
-                    display: flex; 
-                    flex-direction: column; 
-                }
-        
-                .header { 
-                    background: rgba(21, 25, 50, 0.95); 
-                    padding: var(--spacing-md) var(--spacing-lg); 
-                    border-bottom: 1px solid var(--border); 
-                    position: sticky; 
-                    top: 0; 
-                    z-index: 100; 
-                    backdrop-filter: blur(10px);
-                }
-        
-                .header-content { 
-                    max-width: 1400px; 
-                    margin: 0 auto; 
-                    display: flex; 
-                    justify-content: space-between; 
-                    align-items: center; 
-                    gap: var(--spacing-md);
-                }
-        
-                .logo { 
-                    display: flex; 
-                    align-items: center; 
-                    gap: var(--spacing-md); 
-                    min-width: 0;
-                }
-        
-                .logo h1 { 
-                    font-size: clamp(1.25rem, 4vw, 1.5rem); 
-                    font-weight: 700; 
-                    background: linear-gradient(135deg, #7c3aed 0%, #10b981 100%); 
-                    -webkit-background-clip: text; 
-                    -webkit-text-fill-color: transparent;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-        
-                .status-indicator { 
-                    width: 12px; 
-                    height: 12px; 
-                    border-radius: 50%; 
-                    background: var(--success); 
-                    animation: pulse 2s infinite;
-                    flex-shrink: 0;
-                }
-        
-                @keyframes pulse { 
-                    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 
-                    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 
-                    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } 
-                }
-=======
     private string HtmlTemplate
     {
         get
@@ -146,7 +38,6 @@ public class BotServer(Main mainForm, int port = 8080, int tcpPort = 8081) : IDi
             return _htmlTemplate;
         }
     }
->>>>>>> upstream/master
 
     private static string LoadEmbeddedResource(string resourceName)
     {
