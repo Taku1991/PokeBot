@@ -24,6 +24,14 @@
     <Authors>Kaphotics, Gengar</Authors>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\BotControlPanel.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\BotControlPanel.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="System.Management" Version="9.0.5" />
     <PackageReference Include="System.Resources.Extensions" Version="9.0.4" />
   </ItemGroup>

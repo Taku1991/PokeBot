@@ -106,6 +106,26 @@ namespace SysBot.Pokemon.WinForms
             }
         }
 
+        public async void PerformUpdate()
+        {
+            buttonDownload.Enabled = false;
+            buttonDownload.Text = "Downloading...";
+
+            try
+            {
+                string? downloadUrl = await UpdateChecker.FetchDownloadUrlAsync();
+                if (!string.IsNullOrWhiteSpace(downloadUrl))
+                {
+                    string downloadedFilePath = await StartDownloadProcessAsync(downloadUrl);
+                    if (!string.IsNullOrEmpty(downloadedFilePath))
+                    {
+                        InstallUpdate(downloadedFilePath);
+                    }
+                }
+            }
+            catch { }
+        }
+
         private async Task FetchAndDisplayChangelog()
         {
             _ = new UpdateChecker();
