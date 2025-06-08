@@ -268,7 +268,7 @@ public static class WebApiExtensions
             "RESUME" => ExecuteGlobalCommand(BotControlCommand.Resume),
             "RESTART" => ExecuteGlobalCommand(BotControlCommand.Restart),
             "REBOOT" => ExecuteGlobalCommand(BotControlCommand.RebootAndStop),
-            "REFRESHMAP" => ExecuteGlobalCommand(BotControlCommand.RefreshMap),
+            "REFRESHMAP" => "OK: RefreshMap command received (feature not implemented for this bot configuration)",
             "SCREENON" => ExecuteGlobalCommand(BotControlCommand.ScreenOnAll),
             "SCREENOFF" => ExecuteGlobalCommand(BotControlCommand.ScreenOffAll),
             

@@ -167,6 +167,8 @@ public class BotServer(Main mainForm, int port = 8080, int tcpPort = 8081) : IDi
                 var path when path?.StartsWith("/api/bot/instances/") == true && path.EndsWith("/command") =>
                     await RunCommand(request, ExtractPort(path)),
                 "/api/bot/command/all" => await RunAllCommand(request),
+                "/api/bot/update/check" => await CheckForUpdates(),
+                "/api/bot/update/idle-status" => GetIdleStatus(),
                 "/api/bot/update/all" => await UpdateAllInstances(request),
                 _ => null
             };
@@ -203,30 +205,211 @@ public class BotServer(Main mainForm, int port = 8080, int tcpPort = 8081) : IDi
     {
         try
         {
-            var result = await UpdateManager.UpdateAllInstancesAsync(_mainForm, _tcpPort);
+            // Read request body to check for stage parameter
+            using var reader = new StreamReader(request.InputStream);
+            var body = await reader.ReadToEndAsync();
+            var stage = "start"; // default
 
-            return JsonSerializer.Serialize(new
+            if (!string.IsNullOrEmpty(body))
             {
-                Success = result.UpdatesFailed == 0 && result.UpdatesNeeded > 0,
+                try
+                {
+                    var requestData = JsonSerializer.Deserialize<Dictionary<string, string>>(body);
+                    if (requestData?.ContainsKey("stage") == true)
+                    {
+                        stage = requestData["stage"];
+                    }
+                }
+                catch { }
+            }
+
+            if (stage == "proceed")
+            {
+                // Proceed with actual updates after all bots are idle
+                var result = await UpdateManager.ProceedWithUpdatesAsync(_mainForm, _tcpPort);
+
+                return JsonSerializer.Serialize(new
+                {
+                    Stage = "updating",
+                    Success = result.UpdatesFailed == 0 && result.UpdatesNeeded > 0,
                 result.TotalInstances,
                 result.UpdatesNeeded,
                 result.UpdatesStarted,
                 result.UpdatesFailed,
-                Results = result.InstanceResults.Select(r => new
+                    Results = result.InstanceResults.Select(r => new
+                    {
+                        r.Port,
+                        r.ProcessId,
+                        r.CurrentVersion,
+                        r.LatestVersion,
+                        r.NeedsUpdate,
+                        r.UpdateStarted,
+                        r.Error
+                    })
+                });
+            }
+            else
+            {
+                // Start the idle process
+                var result = await UpdateManager.StartUpdateProcessAsync(_mainForm, _tcpPort);
+
+                return JsonSerializer.Serialize(new
                 {
-                    r.Port,
-                    r.ProcessId,
-                    r.CurrentVersion,
-                    r.LatestVersion,
-                    r.NeedsUpdate,
-                    r.UpdateStarted,
-                    r.Error
-                })
+                    Stage = "idling",
+                    Success = result.UpdatesFailed == 0,
+                    TotalInstances = result.TotalInstances,
+                    UpdatesNeeded = result.UpdatesNeeded,
+                    Results = result.InstanceResults.Select(r => new
+                    {
+                        r.Port,
+                        r.ProcessId,
+                        r.CurrentVersion,
+                        r.LatestVersion,
+                        r.NeedsUpdate,
+                        r.Error
+                    })
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            return CreateErrorResponse(ex.Message);
+        }
+    }
+
+    private string GetIdleStatus()
+    {
+        try
+        {
+            var instances = new List<object>();
+
+            // Local instance
+            var localBots = GetBotControllers();
+            var localIdleCount = 0;
+            var localTotalCount = localBots.Count;
+            var localNonIdleBots = new List<object>();
+
+            foreach (var controller in localBots)
+            {
+                var status = controller.ReadBotState();
+                var upperStatus = status?.ToUpper() ?? "";
+
+                if (upperStatus == "IDLE" || upperStatus == "STOPPED")
+                {
+                    localIdleCount++;
+                }
+                else
+                {
+                    localNonIdleBots.Add(new
+                    {
+                        Name = GetBotName(controller.State, GetConfig()),
+                        Status = status
+                    });
+                }
+            }
+
+            instances.Add(new
+            {
+                Port = _tcpPort,
+                ProcessId = Environment.ProcessId,
+                TotalBots = localTotalCount,
+                IdleBots = localIdleCount,
+                NonIdleBots = localNonIdleBots,
+                AllIdle = localIdleCount == localTotalCount
+            });
+
+            // Remote instances
+            var remoteInstances = ScanRemoteInstances().Where(i => i.IsOnline);
+            foreach (var instance in remoteInstances)
+            {
+                var botsResponse = QueryRemote(instance.Port, "LISTBOTS");
+                if (botsResponse.StartsWith("{") && botsResponse.Contains("Bots"))
+                {
+                    try
+                    {
+                        var botsData = JsonSerializer.Deserialize<Dictionary<string, List<Dictionary<string, object>>>>(botsResponse);
+                        if (botsData?.ContainsKey("Bots") == true)
+                        {
+                            var bots = botsData["Bots"];
+                            var idleCount = 0;
+                            var nonIdleBots = new List<object>();
+
+                            foreach (var bot in bots)
+                            {
+                                if (bot.TryGetValue("Status", out var status))
+                                {
+                                    var statusStr = status?.ToString()?.ToUpperInvariant() ?? "";
+                                    if (statusStr == "IDLE" || statusStr == "STOPPED")
+                                    {
+                                        idleCount++;
+                                    }
+                                    else
+                                    {
+                                        nonIdleBots.Add(new
+                                        {
+                                            Name = bot.TryGetValue("Name", out var name) ? name?.ToString() : "Unknown",
+                                            Status = statusStr
+                                        });
+                                    }
+                                }
+                            }
+
+                            instances.Add(new
+                            {
+                                Port = instance.Port,
+                                ProcessId = instance.ProcessId,
+                                TotalBots = bots.Count,
+                                IdleBots = idleCount,
+                                NonIdleBots = nonIdleBots,
+                                AllIdle = idleCount == bots.Count
+                            });
+                        }
+                    }
+                    catch { }
+                }
+            }
+
+            var totalBots = instances.Sum(i => (int)((dynamic)i).TotalBots);
+            var totalIdle = instances.Sum(i => (int)((dynamic)i).IdleBots);
+            var allInstancesIdle = instances.All(i => (bool)((dynamic)i).AllIdle);
+
+            return JsonSerializer.Serialize(new
+            {
+                Instances = instances,
+                TotalBots = totalBots,
+                TotalIdleBots = totalIdle,
+                AllBotsIdle = allInstancesIdle
             });
         }
         catch (Exception ex)
         {
             return CreateErrorResponse(ex.Message);
+        }
+    }
+
+    private async Task<string> CheckForUpdates()
+    {
+        try
+        {
+            var (updateAvailable, _, latestVersion) = await UpdateChecker.CheckForUpdatesAsync(false);
+            var changelog = await UpdateChecker.FetchChangelogAsync();
+
+            return JsonSerializer.Serialize(new
+            {
+                version = latestVersion,
+                changelog,
+                available = updateAvailable
+            });
+        }
+        catch (Exception ex)
+        {
+            return JsonSerializer.Serialize(new
+            {
+                version = "Unknown",
+                changelog = "Unable to fetch update information",
+                available = false,
+                error = ex.Message
+            });
         }
     }
 
@@ -259,7 +442,7 @@ public class BotServer(Main mainForm, int port = 8080, int tcpPort = 8081) : IDi
         var version = "Unknown";
         try
         {
-            var tradeBotType = Type.GetType("SysBot.Pokemon.Helpers.TradeBot, SysBot.Pokemon");
+            var tradeBotType = Type.GetType("SysBot.Pokemon.Helpers.PokeBot, SysBot.Pokemon");
             if (tradeBotType != null)
             {
                 var versionField = tradeBotType.GetField("Version",

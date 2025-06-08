@@ -662,6 +662,7 @@ namespace SysBot.Pokemon.WinForms
         RebootAndStop,
         ScreenOnAll,
         ScreenOffAll,
+        RefreshMap,
     }
 
     public static class BotControlCommandExtensions
