@@ -237,6 +237,7 @@ public static class WebApiExtensions
         if (_main == null)
             return "ERROR: Main form not initialized";
 
+        // Parse command and optional bot ID (format: "COMMAND:BOTID")
         var parts = command.Split(':');
         var cmd = parts[0].ToUpperInvariant();
         var botId = parts.Length > 1 ? parts[1] : null;
@@ -251,13 +252,33 @@ public static class WebApiExtensions
             "REBOOTALL" => ExecuteGlobalCommand(BotControlCommand.RebootAndStop),
             "SCREENONALL" => ExecuteGlobalCommand(BotControlCommand.ScreenOnAll),
             "SCREENOFFALL" => ExecuteGlobalCommand(BotControlCommand.ScreenOffAll),
+            
+            // Individual bot commands (with :botId)
+            "START" when !string.IsNullOrEmpty(botId) => ExecuteIndividualCommand(BotControlCommand.Start, botId),
+            "STOP" when !string.IsNullOrEmpty(botId) => ExecuteIndividualCommand(BotControlCommand.Stop, botId),
+            "IDLE" when !string.IsNullOrEmpty(botId) => ExecuteIndividualCommand(BotControlCommand.Idle, botId),
+            "RESUME" when !string.IsNullOrEmpty(botId) => ExecuteIndividualCommand(BotControlCommand.Resume, botId),
+            "RESTART" when !string.IsNullOrEmpty(botId) => ExecuteIndividualCommand(BotControlCommand.Restart, botId),
+            "REBOOT" when !string.IsNullOrEmpty(botId) => ExecuteIndividualCommand(BotControlCommand.RebootAndStop, botId),
+            
+            // Fallback: if no botId specified, execute on all bots
+            "START" => ExecuteGlobalCommand(BotControlCommand.Start),
+            "STOP" => ExecuteGlobalCommand(BotControlCommand.Stop),
+            "IDLE" => ExecuteGlobalCommand(BotControlCommand.Idle),
+            "RESUME" => ExecuteGlobalCommand(BotControlCommand.Resume),
+            "RESTART" => ExecuteGlobalCommand(BotControlCommand.Restart),
+            "REBOOT" => ExecuteGlobalCommand(BotControlCommand.RebootAndStop),
+            "REFRESHMAP" => ExecuteGlobalCommand(BotControlCommand.RefreshMap),
+            "SCREENON" => ExecuteGlobalCommand(BotControlCommand.ScreenOnAll),
+            "SCREENOFF" => ExecuteGlobalCommand(BotControlCommand.ScreenOffAll),
+            
             "LISTBOTS" => GetBotsList(),
             "STATUS" => GetBotStatuses(botId),
             "ISREADY" => CheckReady(),
             "INFO" => GetInstanceInfo(),
-            "VERSION" => PokeBot.Version,
+            "VERSION" => GetVersion(),
             "UPDATE" => TriggerUpdate(),
-            _ => $"ERROR: Unknown command '{cmd}'"
+            _ => $"ERROR: Unknown command '{cmd}'. Use format 'COMMAND' or 'COMMAND:BOTID' for individual bot control."
         };
     }
 
@@ -302,6 +323,63 @@ public static class WebApiExtensions
         catch (Exception ex)
         {
             return $"ERROR: Failed to execute {command} - {ex.Message}";
+        }
+    }
+
+    private static string ExecuteIndividualCommand(BotControlCommand command, string botId)
+    {
+        try
+        {
+            var controllers = GetBotControllers();
+            var targetBot = controllers.FirstOrDefault(c => 
+                $"{c.State.Connection.IP}:{c.State.Connection.Port}" == botId ||
+                c.State.Connection.IP == botId);
+
+            if (targetBot == null)
+            {
+                return $"ERROR: Bot with ID '{botId}' not found. Available bots: {string.Join(", ", controllers.Select(c => $"{c.State.Connection.IP}:{c.State.Connection.Port}"))}";
+            }
+
+            _main!.BeginInvoke((MethodInvoker)(() =>
+            {
+                // Send command to specific bot controller
+                var sendMethod = targetBot.GetType().GetMethod("SendCommand", 
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                
+                if (sendMethod != null)
+                {
+                    sendMethod.Invoke(targetBot, new object[] { command });
+                }
+                else
+                {
+                    // Fallback: try to get the bot and send command directly
+                    var bot = targetBot.GetBot();
+                    if (bot != null)
+                    {
+                        switch (command)
+                        {
+                            case BotControlCommand.Start:
+                                if (!bot.IsRunning) bot.Start();
+                                break;
+                            case BotControlCommand.Stop:
+                                if (bot.IsRunning) bot.Stop();
+                                break;
+                            case BotControlCommand.Idle:
+                                bot.Pause();
+                                break;
+                            case BotControlCommand.Resume:
+                                bot.Start();
+                                break;
+                        }
+                    }
+                }
+            }));
+
+            return $"OK: {command} command sent to bot {botId} ({targetBot.State.Connection.IP})";
+        }
+        catch (Exception ex)
+        {
+            return $"ERROR: Failed to execute {command} on bot {botId} - {ex.Message}";
         }
     }
 
