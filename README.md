@@ -29,6 +29,10 @@ Control all of your bots with a simple to use control panel via `http://localhos
 
 ![image](https://github.com/user-attachments/assets/3a30b334-955c-4fb3-b7d8-60cd005a2e18)
 
+- **Automatic Updates**
+Update your bots with the click of a button to always stay current with latest PKHeX/ALM releases.
+![image](https://github.com/user-attachments/assets/c4596ac3-bd08-4242-a817-f35ea7881840)
+
 
 # 📱 Access PokeBot from Any Device on Your Network
 
