@@ -24,7 +24,7 @@ jobs:
           if git ls-remote --heads upstream | grep -q refs/heads/master; then
             UPSTREAM_BRANCH=master
           else
-            UPSTREAM_BRANCH=main
+            UPSTREAM_BRANCH=master
           fi
           
           echo "Checking upstream branch: $UPSTREAM_BRANCH"
@@ -39,14 +39,14 @@ jobs:
           # Prüfe, ob es neue Commits gibt
           if [ "$LOCAL_COMMIT" != "$UPSTREAM_COMMIT" ]; then
             # Zusätzliche Prüfung: Sind wir hinter dem Upstream?
-            if git merge-base --is-ancestor HEAD upstream/$UPSTREAM_BRANCH; then
+            if git merge-base --is-ancestor upstream/$UPSTREAM_BRANCH HEAD; then
+              echo "has_updates=false" >> $GITHUB_OUTPUT
+              echo "Local repository is ahead of upstream"
+            else
               echo "has_updates=true" >> $GITHUB_OUTPUT
               echo "upstream_commit=$UPSTREAM_COMMIT" >> $GITHUB_OUTPUT
               echo "upstream_message=$(git log -1 --pretty=%B upstream/$UPSTREAM_BRANCH)" >> $GITHUB_OUTPUT
               echo "upstream_branch=$UPSTREAM_BRANCH" >> $GITHUB_OUTPUT
-            else
-              echo "has_updates=false" >> $GITHUB_OUTPUT
-              echo "Repository has diverged from upstream"
             fi
           else
             echo "has_updates=false" >> $GITHUB_OUTPUT
