@@ -30,9 +30,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
 
     private bool IsMysteryEgg { get; }
 
-    private bool IsMysteryMon { get; }
-
-    public DiscordTradeNotifier(T data, PokeTradeTrainerInfo info, int code, SocketUser trader, int batchTradeNumber, int totalBatchTrades, bool isMysteryMon, bool isMysteryEgg, List<Pictocodes> lgcode)
+    public DiscordTradeNotifier(T data, PokeTradeTrainerInfo info, int code, SocketUser trader, int batchTradeNumber, int totalBatchTrades, bool isMysteryEgg, List<Pictocodes> lgcode)
     {
         Data = data;
         Info = info;
@@ -41,7 +39,6 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
         BatchTradeNumber = batchTradeNumber;
         TotalBatchTrades = totalBatchTrades;
         IsMysteryEgg = isMysteryEgg;
-        IsMysteryMon = isMysteryMon;
         LGCode = lgcode;
     }
 
@@ -54,7 +51,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
         int language = 2;
         var speciesName = SpeciesName.GetSpeciesName(Data.Species, language);
         var batchInfo = TotalBatchTrades > 1 ? $" (Trade {BatchTradeNumber} of {TotalBatchTrades})" : "";
-        var receive = IsMysteryMon ? " (Mystery Pokémon)" : (Data.Species == 0 ? string.Empty : $" ({Data.Nickname})");
+        var receive = (Data.Species == 0 ? string.Empty : $" ({Data.Nickname})");
 
         if (Data is PK9)
         {
@@ -65,7 +62,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
                 message += "\n**Please stay in the trade until all batch trades are completed.**";
             }
 
-            EmbedHelper.SendTradeInitializingEmbedAsync(Trader, speciesName, Code, IsMysteryMon, IsMysteryEgg, message).ConfigureAwait(false);
+            EmbedHelper.SendTradeInitializingEmbedAsync(Trader, speciesName, Code, IsMysteryEgg, message).ConfigureAwait(false);
         }
         else if (Data is PB7)
         {
@@ -74,7 +71,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
         }
         else
         {
-            EmbedHelper.SendTradeInitializingEmbedAsync(Trader, speciesName, Code, IsMysteryMon, IsMysteryEgg).ConfigureAwait(false);
+            EmbedHelper.SendTradeInitializingEmbedAsync(Trader, speciesName, Code, IsMysteryEgg).ConfigureAwait(false);
         }
     }
 

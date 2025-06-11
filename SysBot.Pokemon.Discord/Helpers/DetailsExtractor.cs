@@ -59,15 +59,14 @@ public static class DetailsExtractor<T> where T : PKM, new()
     /// </summary>
     /// <param name="embedBuilder">Discord embed builder to modify.</param>
     /// <param name="isMysteryEgg">Whether this is a mystery egg trade.</param>
-    /// /// <param name="isMysteryMon">Whether this is a mystery trade.</param>
     /// <param name="isSpecialRequest">Whether this is a special request trade.</param>
     /// <param name="isCloneRequest">Whether this is a clone request trade.</param>
     /// <param name="isFixOTRequest">Whether this is a fix OT request trade.</param>
     /// <param name="trainerMention">Discord mention for the trainer.</param>
-    public static void AddSpecialTradeFields(EmbedBuilder embedBuilder, bool isMysteryMon,  bool isMysteryEgg, bool isSpecialRequest, bool isCloneRequest, bool isFixOTRequest, string trainerMention)
+    public static void AddSpecialTradeFields(EmbedBuilder embedBuilder, bool isMysteryEgg, bool isSpecialRequest, bool isCloneRequest, bool isFixOTRequest, string trainerMention)
     {
         string specialDescription = $"**Trainer:** {trainerMention}\n" +
-                                    (isMysteryMon ? "Mystery Pokémon" : isMysteryEgg ? "Mystery Egg" : isSpecialRequest ? "Special Request" : isCloneRequest ? "Clone Request" : isFixOTRequest ? "FixOT Request" : "Dump Request");
+                                    (isMysteryEgg ? "Mystery Egg" : isSpecialRequest ? "Special Request" : isCloneRequest ? "Clone Request" : isFixOTRequest ? "FixOT Request" : "Dump Request");
         embedBuilder.AddField("\u200B", specialDescription, inline: false);
     }
 
@@ -96,7 +95,6 @@ public static class DetailsExtractor<T> where T : PKM, new()
     /// <param name="pk">Pokémon data.</param>
     /// <param name="user">Discord user initiating the trade.</param>
     /// <param name="isMysteryEgg">Whether this is a mystery egg trade.</param>
-    /// /// <param name="isMysteryMon">Whether this is a mystery trade.</param>
     /// <param name="isCloneRequest">Whether this is a clone request trade.</param>
     /// <param name="isDumpRequest">Whether this is a dump request trade.</param>
     /// <param name="isFixOTRequest">Whether this is a fix OT request trade.</param>
@@ -105,7 +103,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
     /// <param name="batchTradeNumber">The number of this trade in the batch sequence.</param>
     /// <param name="totalBatchTrades">Total number of trades in the batch.</param>
     /// <returns>Structured Pokémon data for embed display.</returns>
-    public static EmbedData ExtractPokemonDetails(T pk, SocketUser user, bool isMysteryMon, bool isMysteryEgg, bool isCloneRequest, bool isDumpRequest, bool isFixOTRequest, bool isSpecialRequest, bool isBatchTrade, int batchTradeNumber, int totalBatchTrades)
+    public static EmbedData ExtractPokemonDetails(T pk, SocketUser user, bool isMysteryEgg, bool isCloneRequest, bool isDumpRequest, bool isFixOTRequest, bool isSpecialRequest, bool isBatchTrade, int batchTradeNumber, int totalBatchTrades)
     {
         string langCode = ((LanguageID)pk.Language).GetLanguageCode();
         GameStrings strings = GameInfo.GetStrings(langCode);
@@ -137,9 +135,10 @@ public static class DetailsExtractor<T> where T : PKM, new()
         embedData.HeldItem = strings.itemlist[pk.HeldItem];
         embedData.Ball = strings.balllist[pk.Ball];
 
-        int[] ivs = pk.IVs;
+        Span<int> ivs = stackalloc int[6];
+        pk.GetIVs(ivs);
         string ivsDisplay;
-        if (ivs.All(iv => iv == 31))
+        if (ivs.ToArray().All(iv => iv == 31))
         {
             ivsDisplay = "6IV";
         }

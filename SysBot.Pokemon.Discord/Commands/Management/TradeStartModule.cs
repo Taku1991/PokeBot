@@ -94,7 +94,7 @@ public class TradeStartModule<T> : ModuleBase<SocketCommandContext> where T : PK
                 ballImgUrl = $"https://raw.githubusercontent.com/bdawg1989/sprites/main/AltBallImg/28x28/{ballName}.png";
             }
 
-            string tradeTitle = detail.IsMysteryMon ? "✨ Mystery Pokémon" : detail.IsMysteryEgg ? "✨ Mystery Egg" : detail.Type switch
+            string tradeTitle = detail.IsMysteryEgg ? "✨ Mystery Egg" : detail.Type switch
             {
                 PokeTradeType.Clone => "Cloned Pokémon",
                 PokeTradeType.Dump => "Pokémon Dump",
@@ -103,7 +103,7 @@ public class TradeStartModule<T> : ModuleBase<SocketCommandContext> where T : PK
                 _ => speciesName
             };
 
-            string embedImageUrl = detail.IsMysteryMon ? "https://i.imgur.com/FdESYAv.png" : detail.IsMysteryEgg ? "https://raw.githubusercontent.com/bdawg1989/sprites/main/mysteryegg3.png" : detail.Type switch
+            string embedImageUrl = detail.IsMysteryEgg ? "https://raw.githubusercontent.com/bdawg1989/sprites/main/mysteryegg3.png" : detail.Type switch
             {
                 PokeTradeType.Clone => "https://raw.githubusercontent.com/bdawg1989/sprites/main/clonepod.png",
                 PokeTradeType.Dump => "https://raw.githubusercontent.com/bdawg1989/sprites/main/AltBallImg/128x128/dumpball.png",
@@ -116,7 +116,7 @@ public class TradeStartModule<T> : ModuleBase<SocketCommandContext> where T : PK
 
             string footerText = detail.Type == PokeTradeType.Clone || detail.Type == PokeTradeType.Dump || detail.Type == PokeTradeType.Seed || detail.Type == PokeTradeType.FixOT
                 ? "Initializing trade now."
-                : $"Initializing trade now. Enjoy your {(detail.IsMysteryMon ? "✨ Mystery Pokémon" : detail.IsMysteryEgg ? "✨ Mystery Egg" : speciesName)}!";
+                : $"Initializing trade now. Enjoy your {(detail.IsMysteryEgg ? "✨ Mystery Egg" : speciesName)}!";
 
             var embed = new EmbedBuilder()
                 .WithColor(new DiscordColor(r, g, b))
