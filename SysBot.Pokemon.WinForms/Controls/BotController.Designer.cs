@@ -58,7 +58,7 @@ namespace SysBot.Pokemon.WinForms
             this.MouseEnter += new System.EventHandler(this.BotController_MouseEnter);
             this.MouseLeave += new System.EventHandler(this.BotController_MouseLeave);
 
-            // statusPanel (contains the lamp)
+            // Status Panel
             this.statusPanel.BackColor = System.Drawing.Color.Transparent;
             this.statusPanel.Controls.Add(this.PB_Lamp);
             this.statusPanel.Location = new System.Drawing.Point(15, 15);
@@ -67,7 +67,7 @@ namespace SysBot.Pokemon.WinForms
             this.statusPanel.TabIndex = 5;
             this.statusPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.StatusPanel_Paint);
 
-            // PB_Lamp
+            // Status Lamp
             this.PB_Lamp.BackColor = System.Drawing.Color.FromArgb(87, 242, 135);
             this.PB_Lamp.Location = new System.Drawing.Point(15, 15);
             this.PB_Lamp.Name = "PB_Lamp";
@@ -76,7 +76,7 @@ namespace SysBot.Pokemon.WinForms
             this.PB_Lamp.TabStop = false;
             this.PB_Lamp.Paint += new System.Windows.Forms.PaintEventHandler(this.PB_Lamp_Paint);
 
-            // L_Left
+            // Left Label (IP/Routine)
             this.L_Left.AutoSize = false;
             this.L_Left.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
             this.L_Left.ForeColor = System.Drawing.Color.FromArgb(224, 224, 224);
@@ -87,8 +87,11 @@ namespace SysBot.Pokemon.WinForms
             this.L_Left.Text = "192.168.123.123\r\nFlexTrade";
             this.L_Left.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
-            // L_Description
-            this.L_Description.AutoSize = false;
+            // Description Label
+            this.L_Description.Anchor = System.Windows.Forms.AnchorStyles.Top |
+                                        System.Windows.Forms.AnchorStyles.Left |
+                                        System.Windows.Forms.AnchorStyles.Right;
+            this.L_Description.AutoEllipsis = true;
             this.L_Description.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.L_Description.ForeColor = System.Drawing.Color.FromArgb(176, 176, 176);
             this.L_Description.Location = new System.Drawing.Point(290, 25);
@@ -98,7 +101,10 @@ namespace SysBot.Pokemon.WinForms
             this.L_Description.Text = "Waiting for command...";
             this.L_Description.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
-            // progressBar
+            // Progress Bar
+            this.progressBar.Anchor = System.Windows.Forms.AnchorStyles.Bottom |
+                                     System.Windows.Forms.AnchorStyles.Left |
+                                     System.Windows.Forms.AnchorStyles.Right;
             this.progressBar.BackColor = System.Drawing.Color.FromArgb(50, 50, 50);
             this.progressBar.Location = new System.Drawing.Point(80, 65);
             this.progressBar.Name = "progressBar";
@@ -106,7 +112,9 @@ namespace SysBot.Pokemon.WinForms
             this.progressBar.TabIndex = 6;
             this.progressBar.Paint += new System.Windows.Forms.PaintEventHandler(this.ProgressBar_Paint);
 
-            // actionButton
+            // Action Button
+            this.actionButton.Anchor = System.Windows.Forms.AnchorStyles.Top |
+                                      System.Windows.Forms.AnchorStyles.Right;
             this.actionButton.BackColor = System.Drawing.Color.FromArgb(88, 101, 242);
             this.actionButton.FlatAppearance.BorderSize = 0;
             this.actionButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -121,7 +129,7 @@ namespace SysBot.Pokemon.WinForms
             this.actionButton.Click += new System.EventHandler(this.ActionButton_Click);
             this.actionButton.Paint += new System.Windows.Forms.PaintEventHandler(this.ActionButton_Paint);
 
-            // RCMenu
+            // Context Menu
             this.RCMenu.BackColor = System.Drawing.Color.FromArgb(35, 35, 35);
             this.RCMenu.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.RCMenu.Name = "RCMenu";
@@ -130,8 +138,8 @@ namespace SysBot.Pokemon.WinForms
             this.RCMenu.ShowItemToolTips = false;
             this.RCMenu.Size = new System.Drawing.Size(150, 4);
 
-            // animationTimer
-            this.animationTimer.Interval = 16; // ~60fps
+            // Animation Timer
+            this.animationTimer.Interval = 32;
             this.animationTimer.Tick += new System.EventHandler(this.AnimationTimer_Tick);
             this.animationTimer.Enabled = true;
 

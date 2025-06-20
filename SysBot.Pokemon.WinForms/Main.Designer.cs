@@ -1,18 +1,23 @@
 using SysBot.Pokemon.WinForms.Properties;
-using System.Drawing;
-using System.Windows.Forms;
-using System.Drawing.Drawing2D;
-using System.Collections.Generic;
-using System.Linq;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Linq;
+using System.Windows.Forms;
 using SysBot.Base;
-using System.Runtime.InteropServices;
+
+#pragma warning disable CS8618
+#pragma warning disable CS8625
+#pragma warning disable CS8669
 
 namespace SysBot.Pokemon.WinForms
 {
     partial class Main
     {
-        private System.ComponentModel.IContainer components = null;
+        private System.ComponentModel.IContainer? components = null;
 
         protected override void Dispose(bool disposing)
         {
@@ -120,7 +125,7 @@ namespace SysBot.Pokemon.WinForms
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1280, 720);
-            MinimumSize = new Size(1100, 600);
+            MinimumSize = new Size(800, 500);
             BackColor = Color.FromArgb(23, 26, 33);
             Font = new Font("Segoe UI", 9F, FontStyle.Regular);
             Icon = Resources.icon;
@@ -132,7 +137,7 @@ namespace SysBot.Pokemon.WinForms
             Resize += Main_Resize;
 
             mainLayoutPanel.ColumnCount = 2;
-            mainLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 260F));
+            mainLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 240F));
             mainLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             mainLayoutPanel.Controls.Add(sidebarPanel, 0, 0);
             mainLayoutPanel.Controls.Add(contentPanel, 1, 0);
@@ -154,7 +159,7 @@ namespace SysBot.Pokemon.WinForms
             sidebarPanel.Location = new Point(0, 0);
             sidebarPanel.Margin = new Padding(0);
             sidebarPanel.Name = "sidebarPanel";
-            sidebarPanel.Size = new Size(260, 720);
+            sidebarPanel.Size = new Size(240, 720);
             sidebarPanel.TabIndex = 0;
             EnableDoubleBuffering(sidebarPanel);
 
@@ -163,10 +168,29 @@ namespace SysBot.Pokemon.WinForms
             logoPanel.Height = 100;
             logoPanel.Location = new Point(0, 0);
             logoPanel.Name = "logoPanel";
-            logoPanel.Size = new Size(260, 100);
+            logoPanel.Size = new Size(240, 100);
             logoPanel.TabIndex = 2;
             logoPanel.Paint += LogoPanel_Paint;
             EnableDoubleBuffering(logoPanel);
+
+            Resize += (s, e) => {
+                if (Width < 900)
+                {
+                    logoPanel.Height = 70;
+                    navButtonsPanel.Padding = new Padding(0, 20, 0, 0);
+                }
+                else if (Width < 1100)
+                {
+                    logoPanel.Height = 85;
+                    navButtonsPanel.Padding = new Padding(0, 30, 0, 0);
+                }
+                else
+                {
+                    logoPanel.Height = 100;
+                    navButtonsPanel.Padding = new Padding(0, 40, 0, 0);
+                }
+                logoPanel.Invalidate();
+            };
 
             navButtonsPanel.AutoSize = false;
             navButtonsPanel.Controls.Add(btnNavBots);
@@ -178,7 +202,7 @@ namespace SysBot.Pokemon.WinForms
             navButtonsPanel.Margin = new Padding(0);
             navButtonsPanel.Name = "navButtonsPanel";
             navButtonsPanel.Padding = new Padding(0, 40, 0, 0);
-            navButtonsPanel.Size = new Size(260, 540);
+            navButtonsPanel.Size = new Size(240, 540);
             navButtonsPanel.TabIndex = 1;
             navButtonsPanel.BackColor = Color.Transparent;
             EnableDoubleBuffering(navButtonsPanel);
@@ -189,7 +213,7 @@ namespace SysBot.Pokemon.WinForms
 
             var separator = new Panel();
             separator.BackColor = Color.FromArgb(50, 50, 50);
-            separator.Size = new Size(220, 1);
+            separator.Size = new Size(200, 1);
             separator.Margin = new Padding(20, 20, 20, 20);
             navButtonsPanel.Controls.Add(separator);
 
@@ -210,178 +234,84 @@ namespace SysBot.Pokemon.WinForms
             };
             navButtonsPanel.Controls.Add(btnExit);
 
+            Resize += (s, e) => {
+                foreach (Button navBtn in navButtonsPanel.Controls.OfType<Button>())
+                {
+                    if (Width < 900)
+                    {
+                        navBtn.Height = 40;
+                        navBtn.Font = ScaleFont(new Font("Segoe UI", 9F, FontStyle.Regular));
+                        navBtn.Margin = new Padding(0, 0, 0, 5);
+                    }
+                    else
+                    {
+                        navBtn.Height = 50;
+                        navBtn.Font = ScaleFont(new Font("Segoe UI", 10F, FontStyle.Regular));
+                        navBtn.Margin = new Padding(0, 0, 0, 10);
+                    }
+
+                    var idx = navButtonsPanel.Controls.GetChildIndex(navBtn);
+                    if (idx <= 3)
+                    {
+                        navBtn.Location = new Point(0, 40 + (idx * (navBtn.Height + navBtn.Margin.Bottom)));
+                    }
+                }
+            };
+
             sidebarBottomPanel.Controls.Add(btnUpdate);
             sidebarBottomPanel.Controls.Add(comboBox1);
             sidebarBottomPanel.Dock = DockStyle.Bottom;
             sidebarBottomPanel.Height = 100;
             sidebarBottomPanel.Location = new Point(0, 620);
             sidebarBottomPanel.Name = "sidebarBottomPanel";
-            sidebarBottomPanel.Padding = new Padding(20, 10, 20, 20);
+            sidebarBottomPanel.Padding = new Padding(15, 10, 15, 20);
             sidebarBottomPanel.TabIndex = 0;
             sidebarBottomPanel.BackColor = Color.FromArgb(15, 15, 15);
             EnableDoubleBuffering(sidebarBottomPanel);
 
+            Resize += (s, e) => {
+                if (Width < 900)
+                {
+                    sidebarBottomPanel.Height = 80;
+                    btnUpdate.Size = new Size(210, 35);
+                }
+                else
+                {
+                    sidebarBottomPanel.Height = 100;
+                    btnUpdate.Size = new Size(210, 40);
+                }
+            };
+
+            comboBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             comboBox1.BackColor = Color.FromArgb(30, 30, 30);
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBox1.FlatStyle = FlatStyle.Flat;
             comboBox1.Font = new Font("Segoe UI", 9F);
             comboBox1.ForeColor = Color.FromArgb(224, 224, 224);
-            comboBox1.Location = new Point(20, 10);
+            comboBox1.Location = new Point(15, 10);
             comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(220, 23);
+            comboBox1.Size = new Size(210, 23);
             comboBox1.TabIndex = 0;
             comboBox1.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
 
+            btnUpdate.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             btnUpdate.BackColor = Color.FromArgb(30, 30, 30);
             btnUpdate.FlatAppearance.BorderSize = 0;
             btnUpdate.FlatAppearance.MouseOverBackColor = Color.FromArgb(40, 40, 40);
             btnUpdate.FlatStyle = FlatStyle.Flat;
             btnUpdate.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
             btnUpdate.ForeColor = Color.FromArgb(176, 176, 176);
-            btnUpdate.Location = new Point(20, 40);
+            btnUpdate.Location = new Point(15, 40);
             btnUpdate.Name = "btnUpdate";
-            btnUpdate.Size = new Size(220, 40);
+            btnUpdate.Size = new Size(210, 40);
             btnUpdate.TabIndex = 1;
-            btnUpdate.Text = "CHECK FOR UPDATES";
+            btnUpdate.Text = "";
             btnUpdate.UseVisualStyleBackColor = false;
             btnUpdate.Click += Updater_Click;
             btnUpdate.Cursor = Cursors.Hand;
             btnUpdate.Tag = new ButtonAnimationState();
-            btnUpdate.Text = ""; // Clear text since we're drawing it manually
             ConfigureHoverAnimation(btnUpdate);
-
-            // Configure status indicator after button is set up
-            statusIndicator.BackColor = Color.FromArgb(100, 100, 100); // Default gray
-            statusIndicator.Size = new Size(12, 12);
-            statusIndicator.Location = new Point(190, 15); // Fixed position from left
-            statusIndicator.Name = "statusIndicator";
-            statusIndicator.Enabled = false; // Prevent mouse interaction
-            statusIndicator.Anchor = AnchorStyles.Top | AnchorStyles.Right; // Anchor to top-right
-            CreateCircularRegion(statusIndicator);
-            btnUpdate.Controls.Add(statusIndicator);
-            statusIndicator.BringToFront();
-
-            // Add paint handler for status indicator
-            statusIndicator.Paint += (s, e) => {
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                var rect = statusIndicator.ClientRectangle;
-                rect.Inflate(-1, -1);
-
-                using var brush = new SolidBrush(statusIndicator.BackColor);
-                e.Graphics.FillEllipse(brush, rect);
-
-                // Add inner highlight if update available
-                var mainForm = (Main)statusIndicator.FindForm();
-                if (mainForm != null && mainForm.hasUpdate)
-                {
-                    var highlightRect = new Rectangle(2, 2, 4, 4);
-                    using var highlightBrush = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
-                    e.Graphics.FillEllipse(highlightBrush, highlightRect);
-                }
-            };
-
-            // Add tooltip
-            var updateTooltip = new ToolTip();
-            updateTooltip.SetToolTip(btnUpdate, "Check for updates");
-            btnUpdate.MouseEnter += (s, e) => {
-                // Access hasUpdate from main form context
-                var mainForm = (Main)btnUpdate.FindForm();
-                if (mainForm != null && mainForm.hasUpdate)
-                {
-                    updateTooltip.SetToolTip(btnUpdate, "Update available! Click to download.");
-                }
-                else
-                {
-                    updateTooltip.SetToolTip(btnUpdate, "No updates available");
-                }
-            };
-
-            // Reposition status indicator on resize
-            btnUpdate.Resize += (s, e) => {
-                if (statusIndicator != null && btnUpdate.Controls.Contains(statusIndicator))
-                {
-                    statusIndicator.Location = new Point(btnUpdate.ClientSize.Width - 25, 15);
-                }
-            };
-            btnUpdate.Layout += (s, e) => {
-                if (statusIndicator != null && btnUpdate.Controls.Contains(statusIndicator))
-                {
-                    statusIndicator.Location = new Point(btnUpdate.ClientSize.Width - 25, 15);
-                }
-            };
-
-            // Set initial position
-            statusIndicator.Location = new Point(btnUpdate.ClientSize.Width - 25, 15);
-            btnUpdate.Paint += (s, e) => {
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-
-                var animState = btnUpdate.Tag as ButtonAnimationState;
-
-                // Draw hover glow background - only if hovering
-                if (animState != null && animState.HoverProgress > 0 && animState.IsHovering)
-                {
-                    using var glowBrush = new SolidBrush(Color.FromArgb((int)(20 * animState.HoverProgress), 88, 101, 242));
-                    e.Graphics.FillRectangle(glowBrush, btnUpdate.ClientRectangle);
-                }
-
-                // Determine icon color with hover effect
-                var iconColor = btnUpdate.ForeColor;
-                if (animState != null && animState.HoverProgress > 0)
-                {
-                    iconColor = Color.FromArgb(
-                        (int)(176 + (224 - 176) * animState.HoverProgress),
-                        (int)(176 + (224 - 176) * animState.HoverProgress),
-                        (int)(176 + (224 - 176) * animState.HoverProgress)
-                    );
-                }
-
-                // Draw icon
-                using var iconFont = new Font("Segoe MDL2 Assets", 14F);
-                var iconText = "\uE895"; // Download/Update icon
-
-                using var iconBrush = new SolidBrush(iconColor);
-                var iconSize = e.Graphics.MeasureString(iconText, iconFont);
-
-                // Position icon on the left
-                var iconX = 20;
-                var iconY = (btnUpdate.Height - iconSize.Height) / 2;
-                e.Graphics.DrawString(iconText, iconFont, iconBrush, iconX, iconY);
-
-                // Draw text after icon
-                using var textFont = new Font("Segoe UI", 9F, FontStyle.Regular);
-                var text = "CHECK FOR UPDATES";
-                var textSize = e.Graphics.MeasureString(text, textFont);
-                var textX = iconX + iconSize.Width + 10;
-                var textY = (btnUpdate.Height - textSize.Height) / 2;
-                e.Graphics.DrawString(text, textFont, iconBrush, textX, textY);
-
-                // Draw glow around status indicator if update available
-                var mainForm = (Main)btnUpdate.FindForm();
-                if (mainForm != null && mainForm.hasUpdate && statusIndicator != null)
-                {
-                    var indicatorBounds = new Rectangle(
-                        statusIndicator.Left - 3,
-                        statusIndicator.Top - 3,
-                        statusIndicator.Width + 6,
-                        statusIndicator.Height + 6
-                    );
-
-                    // Multi-layer glow
-                    for (int i = 3; i > 0; i--)
-                    {
-                        var glowAlpha = (int)(20 / i * (0.5 + 0.5 * Math.Sin(mainForm.pulsePhase)));
-                        using var glowBrush = new SolidBrush(Color.FromArgb(glowAlpha, 87, 242, 135));
-                        var glowRect = new Rectangle(
-                            indicatorBounds.X - i * 2,
-                            indicatorBounds.Y - i * 2,
-                            indicatorBounds.Width + i * 4,
-                            indicatorBounds.Height + i * 4
-                        );
-                        e.Graphics.FillEllipse(glowBrush, glowRect);
-                    }
-                }
-            };
+            ConfigureUpdateButton();
 
             contentPanel.BackColor = Color.FromArgb(28, 28, 28);
             contentPanel.Controls.Add(botsPanel);
@@ -389,10 +319,10 @@ namespace SysBot.Pokemon.WinForms
             contentPanel.Controls.Add(logsPanel);
             contentPanel.Controls.Add(headerPanel);
             contentPanel.Dock = DockStyle.Fill;
-            contentPanel.Location = new Point(260, 0);
+            contentPanel.Location = new Point(240, 0);
             contentPanel.Margin = new Padding(0);
             contentPanel.Name = "contentPanel";
-            contentPanel.Size = new Size(1020, 720);
+            contentPanel.Size = new Size(1040, 720);
             contentPanel.TabIndex = 1;
             EnableDoubleBuffering(contentPanel);
 
@@ -403,20 +333,60 @@ namespace SysBot.Pokemon.WinForms
             headerPanel.Height = 100;
             headerPanel.Location = new Point(0, 0);
             headerPanel.Name = "headerPanel";
-            headerPanel.Size = new Size(1020, 100);
+            headerPanel.Size = new Size(1040, 100);
             headerPanel.TabIndex = 3;
             headerPanel.Paint += HeaderPanel_Paint;
             headerPanel.Resize += HeaderPanel_Resize;
             EnableDoubleBuffering(headerPanel);
 
+            Resize += (s, e) => {
+                if (Width < 900)
+                {
+                    headerPanel.Height = 70;
+                    controlButtonsPanel.Location = new Point(controlButtonsPanel.Location.X, 20);
+                    titleLabel.Location = new Point(titleLabel.Location.X, 15);
+                }
+                else if (Width < 1100)
+                {
+                    headerPanel.Height = 85;
+                    controlButtonsPanel.Location = new Point(controlButtonsPanel.Location.X, 25);
+                    titleLabel.Location = new Point(titleLabel.Location.X, 20);
+                }
+                else
+                {
+                    headerPanel.Height = 100;
+                    controlButtonsPanel.Location = new Point(controlButtonsPanel.Location.X, 30);
+                    titleLabel.Location = new Point(titleLabel.Location.X, 25);
+                }
+            };
+
             titleLabel.AutoSize = true;
-            titleLabel.Font = new Font("Segoe UI", 24F, FontStyle.Bold);
+            titleLabel.Font = ScaleFont(new Font("Segoe UI", 24F, FontStyle.Bold));
             titleLabel.ForeColor = Color.FromArgb(224, 224, 224);
             titleLabel.Location = new Point(40, 25);
             titleLabel.Name = "titleLabel";
-            titleLabel.Size = new Size(250, 45);
             titleLabel.TabIndex = 0;
             titleLabel.Text = "Bot Management";
+            titleLabel.MaximumSize = new Size(400, 50);
+            titleLabel.AutoEllipsis = true;
+
+            Resize += (s, e) => {
+                if (Width < 900)
+                {
+                    titleLabel.Font = ScaleFont(new Font("Segoe UI", 16F, FontStyle.Bold));
+                    titleLabel.MaximumSize = new Size(250, 40);
+                }
+                else if (Width < 1100)
+                {
+                    titleLabel.Font = ScaleFont(new Font("Segoe UI", 18F, FontStyle.Bold));
+                    titleLabel.MaximumSize = new Size(300, 45);
+                }
+                else
+                {
+                    titleLabel.Font = ScaleFont(new Font("Segoe UI", 24F, FontStyle.Bold));
+                    titleLabel.MaximumSize = new Size(400, 50);
+                }
+            };
 
             controlButtonsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             controlButtonsPanel.AutoSize = true;
@@ -425,12 +395,12 @@ namespace SysBot.Pokemon.WinForms
             controlButtonsPanel.Controls.Add(btnStop);
             controlButtonsPanel.Controls.Add(btnReboot);
             controlButtonsPanel.FlowDirection = FlowDirection.LeftToRight;
-            controlButtonsPanel.Location = new Point(contentPanel.Width - 520, 30);
+            controlButtonsPanel.Location = new Point(contentPanel.Width - 400, 30);
             controlButtonsPanel.Name = "controlButtonsPanel";
-            controlButtonsPanel.Size = new Size(480, 40);
             controlButtonsPanel.TabIndex = 1;
             controlButtonsPanel.BackColor = Color.Transparent;
-            controlButtonsPanel.WrapContents = false;
+            controlButtonsPanel.WrapContents = true;
+            controlButtonsPanel.MaximumSize = new Size(500, 100);
 
             ConfigureControlButton(btnStart, "START ALL", Color.FromArgb(87, 242, 135));
             ConfigureControlButton(btnStop, "STOP ALL", Color.FromArgb(237, 66, 69));
@@ -452,16 +422,34 @@ namespace SysBot.Pokemon.WinForms
             botsPanel.Visible = true;
             EnableDoubleBuffering(botsPanel);
 
+            botHeaderPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             botHeaderPanel.BackColor = Color.FromArgb(35, 35, 35);
             botHeaderPanel.Controls.Add(addBotPanel);
-            botHeaderPanel.Dock = DockStyle.Top;
             botHeaderPanel.Height = 100;
             botHeaderPanel.Location = new Point(40, 40);
             botHeaderPanel.Name = "botHeaderPanel";
-            botHeaderPanel.Size = new Size(940, 100);
+            botHeaderPanel.Size = new Size(960, 100);
             botHeaderPanel.TabIndex = 1;
             CreateRoundedPanel(botHeaderPanel);
             EnableDoubleBuffering(botHeaderPanel);
+
+            botsPanel.Resize += (s, e) => {
+                if (botsPanel.Width < 700)
+                {
+                    botHeaderPanel.Height = 70;
+                    FLP_Bots.Location = new Point(40, 120);
+                }
+                else if (botsPanel.Width < 900)
+                {
+                    botHeaderPanel.Height = 85;
+                    FLP_Bots.Location = new Point(40, 140);
+                }
+                else
+                {
+                    botHeaderPanel.Height = 100;
+                    FLP_Bots.Location = new Point(40, 160);
+                }
+            };
 
             addBotPanel.Controls.Add(B_New);
             addBotPanel.Controls.Add(CB_Routine);
@@ -471,60 +459,168 @@ namespace SysBot.Pokemon.WinForms
             addBotPanel.Dock = DockStyle.Fill;
             addBotPanel.Location = new Point(0, 0);
             addBotPanel.Name = "addBotPanel";
-            addBotPanel.Size = new Size(940, 100);
+            addBotPanel.Size = new Size(960, 100);
             addBotPanel.TabIndex = 0;
             addBotPanel.BackColor = Color.Transparent;
 
             TB_IP.BackColor = Color.FromArgb(28, 28, 28);
             TB_IP.BorderStyle = BorderStyle.FixedSingle;
-            TB_IP.Font = new Font("Segoe UI", 11F);
+            TB_IP.Font = ScaleFont(new Font("Segoe UI", 10F));
             TB_IP.ForeColor = Color.FromArgb(224, 224, 224);
-            TB_IP.Location = new Point(30, 35);
+            TB_IP.Location = new Point(20, 35);
             TB_IP.Name = "TB_IP";
             TB_IP.PlaceholderText = "IP Address";
-            TB_IP.Size = new Size(150, 25);
+            TB_IP.Size = new Size(130, 25);
             TB_IP.TabIndex = 0;
             TB_IP.Text = "192.168.0.1";
 
-            ConfigureNumericUpDown(NUD_Port, 190, 35, 80);
+            ConfigureNumericUpDown(NUD_Port, 160, 35, 70);
             NUD_Port.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
             NUD_Port.Value = new decimal(new int[] { 6000, 0, 0, 0 });
 
             CB_Protocol.SuspendLayout();
-            ConfigureComboBox(CB_Protocol, 280, 35, 120);
+            ConfigureComboBox(CB_Protocol, 240, 35, 100);
             CB_Protocol.SelectedIndexChanged += CB_Protocol_SelectedIndexChanged;
             CB_Protocol.ResumeLayout();
 
-            ConfigureComboBox(CB_Routine, 410, 35, 200);
+            ConfigureComboBox(CB_Routine, 350, 35, 170);
 
             B_New.BackColor = Color.FromArgb(87, 242, 135);
             B_New.FlatAppearance.BorderSize = 0;
             B_New.FlatStyle = FlatStyle.Flat;
-            B_New.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            B_New.Font = ScaleFont(new Font("Segoe UI", 10F, FontStyle.Bold));
             B_New.ForeColor = Color.FromArgb(28, 28, 28);
-            B_New.Location = new Point(620, 30);
+            B_New.Location = new Point(820, 30);
             B_New.Name = "B_New";
-            B_New.Size = new Size(120, 40);
+            B_New.Size = new Size(100, 40);
             B_New.TabIndex = 4;
             B_New.Text = "ADD BOT";
             B_New.UseVisualStyleBackColor = false;
             B_New.Click += B_New_Click;
             B_New.Cursor = Cursors.Hand;
             ConfigureGlowButton(B_New);
+            CreateRoundedButton(B_New);
 
+            Action updateLayout = () => {
+                if (addBotPanel.Width < 700)
+                {
+                    TB_IP.Width = 110;
+                    NUD_Port.Width = 60;
+                    CB_Protocol.Width = 80;
+                    CB_Routine.Width = 120;
+
+                    TB_IP.Location = new Point(10, 35);
+                    NUD_Port.Location = new Point(125, 35);
+                    CB_Protocol.Location = new Point(190, 35);
+                    CB_Routine.Location = new Point(275, 35);
+
+                    B_New.Size = new Size(80, 35);
+                    B_New.Font = ScaleFont(new Font("Segoe UI", 9F, FontStyle.Bold));
+                }
+                else if (addBotPanel.Width < 850)
+                {
+                    TB_IP.Width = 120;
+                    NUD_Port.Width = 65;
+                    CB_Protocol.Width = 90;
+                    CB_Routine.Width = 150;
+
+                    TB_IP.Location = new Point(15, 35);
+                    NUD_Port.Location = new Point(140, 35);
+                    CB_Protocol.Location = new Point(210, 35);
+                    CB_Routine.Location = new Point(305, 35);
+
+                    B_New.Size = new Size(90, 38);
+                    B_New.Font = ScaleFont(new Font("Segoe UI", 9.5F, FontStyle.Bold));
+                }
+                else
+                {
+                    TB_IP.Width = 130;
+                    NUD_Port.Width = 70;
+                    CB_Protocol.Width = 100;
+                    CB_Routine.Width = 170;
+
+                    TB_IP.Location = new Point(20, 35);
+                    NUD_Port.Location = new Point(160, 35);
+                    CB_Protocol.Location = new Point(240, 35);
+                    CB_Routine.Location = new Point(350, 35);
+
+                    B_New.Size = new Size(100, 40);
+                    B_New.Font = ScaleFont(new Font("Segoe UI", 10F, FontStyle.Bold));
+                }
+
+                int buttonSpacing = addBotPanel.Width < 700 ? 10 : 15;
+                int totalWidth = CB_Routine.Right + buttonSpacing + B_New.Width + 20;
+
+                if (totalWidth > addBotPanel.Width && addBotPanel.Width < 600)
+                {
+                    B_New.Location = new Point(
+                        TB_IP.Left,
+                        CB_Routine.Bottom + 10
+                    );
+
+                    if (botHeaderPanel.Height < 120)
+                        botHeaderPanel.Height = 120;
+                }
+                else
+                {
+                    B_New.Location = new Point(
+                        CB_Routine.Right + buttonSpacing,
+                        (addBotPanel.Height - B_New.Height) / 2
+                    );
+                }
+
+                if (B_New.Width < 90)
+                    B_New.Text = "ADD";
+                else
+                    B_New.Text = "ADD BOT";
+            };
+
+            addBotPanel.Resize += (s, e) => updateLayout();
+            addBotPanel.Layout += (s, e) => updateLayout();
+
+            botsPanel.Resize += (s, e) => {
+                updateLayout();
+
+                if (botsPanel.Width < 600 && B_New.Top > CB_Routine.Top)
+                {
+                    botHeaderPanel.Height = 120;
+                    FLP_Bots.Location = new Point(40, 140);
+                }
+                else if (botsPanel.Width < 700)
+                {
+                    botHeaderPanel.Height = 70;
+                    FLP_Bots.Location = new Point(40, 120);
+                }
+                else if (botsPanel.Width < 900)
+                {
+                    botHeaderPanel.Height = 85;
+                    FLP_Bots.Location = new Point(40, 140);
+                }
+                else
+                {
+                    botHeaderPanel.Height = 100;
+                    FLP_Bots.Location = new Point(40, 160);
+                }
+            };
+
+            updateLayout();
+
+            FLP_Bots.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             FLP_Bots.AutoScroll = true;
             FLP_Bots.BackColor = Color.Transparent;
-            FLP_Bots.Dock = DockStyle.Fill;
             FLP_Bots.FlowDirection = FlowDirection.TopDown;
-            FLP_Bots.Location = new Point(40, 140);
+            FLP_Bots.Location = new Point(40, 160);
             FLP_Bots.Margin = new Padding(0, 20, 0, 0);
             FLP_Bots.Name = "FLP_Bots";
             FLP_Bots.Padding = new Padding(0);
-            FLP_Bots.Size = new Size(940, 440);
+            FLP_Bots.Size = new Size(960, 420);
             FLP_Bots.TabIndex = 0;
             FLP_Bots.WrapContents = false;
             FLP_Bots.Resize += FLP_Bots_Resize;
             FLP_Bots.Paint += FLP_Bots_Paint;
+            FLP_Bots.Scroll += (s, e) => FLP_Bots.Invalidate();
+            FLP_Bots.ControlAdded += (s, e) => FLP_Bots.Invalidate();
+            FLP_Bots.ControlRemoved += (s, e) => FLP_Bots.Invalidate();
             EnableDoubleBuffering(FLP_Bots);
 
             hubPanel.BackColor = Color.Transparent;
@@ -539,12 +635,12 @@ namespace SysBot.Pokemon.WinForms
             EnableDoubleBuffering(hubPanel);
 
             var pgContainer = new Panel();
+            pgContainer.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pgContainer.BackColor = Color.FromArgb(35, 35, 35);
-            pgContainer.Dock = DockStyle.Fill;
             pgContainer.Location = new Point(40, 40);
             pgContainer.Name = "pgContainer";
             pgContainer.Padding = new Padding(2);
-            pgContainer.Size = new Size(940, 540);
+            pgContainer.Size = new Size(960, 540);
             CreateRoundedPanel(pgContainer);
             EnableDoubleBuffering(pgContainer);
             hubPanel.Controls.Add(pgContainer);
@@ -555,14 +651,14 @@ namespace SysBot.Pokemon.WinForms
             PG_Hub.CommandsBackColor = Color.FromArgb(35, 35, 35);
             PG_Hub.CommandsForeColor = Color.FromArgb(224, 224, 224);
             PG_Hub.Dock = DockStyle.Fill;
-            PG_Hub.Font = new Font("Segoe UI", 9F);
+            PG_Hub.Font = ScaleFont(new Font("Segoe UI", 9F));
             PG_Hub.HelpBackColor = Color.FromArgb(35, 35, 35);
             PG_Hub.HelpForeColor = Color.FromArgb(176, 176, 176);
             PG_Hub.LineColor = Color.FromArgb(50, 50, 50);
             PG_Hub.Location = new Point(2, 2);
             PG_Hub.Name = "PG_Hub";
             PG_Hub.PropertySort = PropertySort.Categorized;
-            PG_Hub.Size = new Size(936, 536);
+            PG_Hub.Size = new Size(956, 536);
             PG_Hub.TabIndex = 0;
             PG_Hub.ToolbarVisible = false;
             PG_Hub.ViewBackColor = Color.FromArgb(28, 28, 28);
@@ -571,7 +667,6 @@ namespace SysBot.Pokemon.WinForms
             PG_Hub.CreateControl();
 
             logsPanel.BackColor = Color.Transparent;
-            logsPanel.Controls.Add(RTB_Logs);
             logsPanel.Dock = DockStyle.Fill;
             logsPanel.Location = new Point(0, 100);
             logsPanel.Name = "logsPanel";
@@ -582,67 +677,75 @@ namespace SysBot.Pokemon.WinForms
             EnableDoubleBuffering(logsPanel);
 
             var logsContainer = new Panel();
+            logsContainer.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             logsContainer.BackColor = Color.FromArgb(35, 35, 35);
-            logsContainer.Dock = DockStyle.Fill;
             logsContainer.Location = new Point(40, 120);
             logsContainer.Margin = new Padding(0, 20, 0, 0);
             logsContainer.Name = "logsContainer";
             logsContainer.Padding = new Padding(2);
-            logsContainer.Size = new Size(940, 460);
+            logsContainer.Size = new Size(960, 460);
             CreateRoundedPanel(logsContainer);
             EnableDoubleBuffering(logsContainer);
             logsPanel.Controls.Add(logsContainer);
             logsPanel.Controls.Add(logsHeaderPanel);
 
+            logsHeaderPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             logsHeaderPanel.BackColor = Color.FromArgb(35, 35, 35);
-            logsHeaderPanel.Controls.Add(searchPanel);
-            logsHeaderPanel.Controls.Add(searchOptionsPanel);
-            logsHeaderPanel.Controls.Add(searchStatusLabel);
-            logsHeaderPanel.Controls.Add(btnClearLogs);
-            logsHeaderPanel.Dock = DockStyle.Top;
             logsHeaderPanel.Height = 70;
             logsHeaderPanel.Location = new Point(40, 40);
             logsHeaderPanel.Name = "logsHeaderPanel";
             logsHeaderPanel.Padding = new Padding(20, 10, 20, 10);
-            logsHeaderPanel.Size = new Size(940, 70);
+            logsHeaderPanel.Size = new Size(960, 70);
             logsHeaderPanel.TabIndex = 1;
             CreateRoundedPanel(logsHeaderPanel);
             EnableDoubleBuffering(logsHeaderPanel);
 
+            logsHeaderPanel.Resize += (s, e) => {
+                if (btnClearLogs != null && logsHeaderPanel.Width > 0)
+                {
+                    int rightMargin = 50; // Account for padding and rounded corners
+                    btnClearLogs.Location = new Point(Math.Max(700, logsHeaderPanel.Width - btnClearLogs.Width - rightMargin), 15);
+                }
+                if (searchStatusLabel != null)
+                {
+                    searchStatusLabel.Location = new Point(Math.Max(550, logsHeaderPanel.Width - 320), 25);
+                }
+            };
+
+            searchPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             searchPanel.Controls.Add(logSearchBox);
-            searchPanel.Dock = DockStyle.Top;
             searchPanel.Height = 30;
             searchPanel.Location = new Point(20, 10);
             searchPanel.Name = "searchPanel";
-            searchPanel.Size = new Size(550, 30);
+            searchPanel.Size = new Size(500, 30);
             searchPanel.TabIndex = 0;
-            searchPanel.BackColor = Color.Transparent;
+            searchPanel.BackColor = Color.FromArgb(35, 35, 35);
 
             logSearchBox.BackColor = Color.FromArgb(28, 28, 28);
             logSearchBox.BorderStyle = BorderStyle.FixedSingle;
             logSearchBox.Dock = DockStyle.Fill;
-            logSearchBox.Font = new Font("Segoe UI", 10F);
+            logSearchBox.Font = ScaleFont(new Font("Segoe UI", 10F));
             logSearchBox.ForeColor = Color.FromArgb(224, 224, 224);
             logSearchBox.Location = new Point(0, 0);
             logSearchBox.Name = "logSearchBox";
             logSearchBox.PlaceholderText = "Search logs (Enter = next, Shift+Enter = previous, Esc = clear)...";
-            logSearchBox.Size = new Size(550, 30);
+            logSearchBox.Size = new Size(500, 30);
             logSearchBox.TabIndex = 0;
             logSearchBox.TextChanged += LogSearchBox_TextChanged;
             logSearchBox.KeyDown += LogSearchBox_KeyDown;
 
+            searchOptionsPanel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             searchOptionsPanel.AutoSize = true;
             searchOptionsPanel.Controls.Add(btnCaseSensitive);
             searchOptionsPanel.Controls.Add(btnRegex);
             searchOptionsPanel.Controls.Add(btnWholeWord);
-            searchOptionsPanel.Dock = DockStyle.Bottom;
             searchOptionsPanel.FlowDirection = FlowDirection.LeftToRight;
             searchOptionsPanel.Height = 25;
             searchOptionsPanel.Location = new Point(20, 45);
             searchOptionsPanel.Name = "searchOptionsPanel";
-            searchOptionsPanel.Size = new Size(550, 25);
+            searchOptionsPanel.Size = new Size(500, 25);
             searchOptionsPanel.TabIndex = 1;
-            searchOptionsPanel.BackColor = Color.Transparent;
+            searchOptionsPanel.BackColor = Color.FromArgb(35, 35, 35);
             searchOptionsPanel.WrapContents = false;
 
             ConfigureSearchOption(btnCaseSensitive, "Aa", "Case sensitive search");
@@ -650,26 +753,25 @@ namespace SysBot.Pokemon.WinForms
             ConfigureSearchOption(btnWholeWord, "Ab", "Whole word search");
 
             searchStatusLabel.AutoSize = true;
-            searchStatusLabel.Dock = DockStyle.Right;
-            searchStatusLabel.Font = new Font("Segoe UI", 9F);
+            searchStatusLabel.Anchor = AnchorStyles.Top;
+            searchStatusLabel.Font = ScaleFont(new Font("Segoe UI", 9F));
             searchStatusLabel.ForeColor = Color.FromArgb(176, 176, 176);
-            searchStatusLabel.Location = new Point(650, 10);
-            searchStatusLabel.Padding = new Padding(10, 18, 10, 0);
+            searchStatusLabel.Location = new Point(650, 25);
             searchStatusLabel.Name = "searchStatusLabel";
-            searchStatusLabel.Size = new Size(150, 50);
+            searchStatusLabel.Size = new Size(120, 20);
             searchStatusLabel.TabIndex = 2;
             searchStatusLabel.Text = "";
             searchStatusLabel.TextAlign = ContentAlignment.MiddleRight;
 
+            btnClearLogs.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnClearLogs.BackColor = Color.FromArgb(237, 66, 69);
-            btnClearLogs.Dock = DockStyle.Right;
             btnClearLogs.FlatAppearance.BorderSize = 0;
             btnClearLogs.FlatStyle = FlatStyle.Flat;
-            btnClearLogs.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnClearLogs.Font = ScaleFont(new Font("Segoe UI", 9F, FontStyle.Bold));
             btnClearLogs.ForeColor = Color.White;
-            btnClearLogs.Location = new Point(800, 10);
+            btnClearLogs.Location = new Point(800, 15);
             btnClearLogs.Name = "btnClearLogs";
-            btnClearLogs.Size = new Size(120, 50);
+            btnClearLogs.Size = new Size(110, 40);
             btnClearLogs.TabIndex = 3;
             btnClearLogs.Text = "CLEAR LOGS";
             btnClearLogs.UseVisualStyleBackColor = false;
@@ -679,21 +781,28 @@ namespace SysBot.Pokemon.WinForms
                 _searchManager.ClearSearch();
             };
             ConfigureGlowButton(btnClearLogs);
+            CreateRoundedButton(btnClearLogs);
 
             RTB_Logs.BackColor = Color.FromArgb(28, 28, 28);
             RTB_Logs.BorderStyle = BorderStyle.None;
             RTB_Logs.Dock = DockStyle.Fill;
-            RTB_Logs.Font = new Font("Consolas", 10F);
+            RTB_Logs.Font = ScaleFont(new Font("Consolas", 10F));
             RTB_Logs.ForeColor = Color.FromArgb(224, 224, 224);
             RTB_Logs.Location = new Point(2, 2);
             RTB_Logs.Name = "RTB_Logs";
             RTB_Logs.ReadOnly = true;
-            RTB_Logs.Size = new Size(936, 456);
+            RTB_Logs.Size = new Size(956, 456);
             RTB_Logs.TabIndex = 0;
             RTB_Logs.Text = "";
             RTB_Logs.HideSelection = false;
             RTB_Logs.KeyDown += RTB_Logs_KeyDown;
             logsContainer.Controls.Add(RTB_Logs);
+
+            // Add controls to logsHeaderPanel in correct order
+            logsHeaderPanel.Controls.Add(searchPanel);
+            logsHeaderPanel.Controls.Add(searchOptionsPanel);
+            logsHeaderPanel.Controls.Add(searchStatusLabel);
+            logsHeaderPanel.Controls.Add(btnClearLogs);
 
             TC_Main = new TabControl { Visible = false };
             Tab_Bots = new TabPage();
@@ -727,7 +836,73 @@ namespace SysBot.Pokemon.WinForms
 
             ConfigureSystemTray();
             animationTimer.Start();
+
+            this.Shown += (s, e) => {
+                if (addBotPanel != null)
+                {
+                    var temp = addBotPanel.Width;
+                    addBotPanel.Width = temp + 1;
+                    addBotPanel.Width = temp;
+                }
+
+                if (logsHeaderPanel != null)
+                {
+                    logsHeaderPanel.PerformLayout();
+                    logsHeaderPanel.Invalidate();
+
+                    if (searchPanel != null)
+                    {
+                        searchPanel.Invalidate();
+                        logSearchBox.Refresh();
+                    }
+
+                    if (btnClearLogs != null)
+                    {
+                        btnClearLogs.Invalidate();
+                    }
+                }
+            };
         }
+
+        #endregion
+
+        #region Font Scaling
+
+        private Font ScaleFont(Font baseFont)
+        {
+            using (Graphics g = CreateGraphics())
+            {
+                float dpiScale = g.DpiX / 96f;
+                float scaledSize = baseFont.Size * dpiScale;
+
+                if (ClientSize.Width < 900)
+                {
+                    scaledSize *= 0.85f;
+                }
+                else if (ClientSize.Width < 1100)
+                {
+                    scaledSize *= 0.92f;
+                }
+
+                scaledSize = Math.Max(7f, scaledSize);
+
+                if (ClientSize.Width < 800)
+                {
+                    if (baseFont.Size >= 24)
+                        scaledSize = Math.Min(scaledSize, 16f);
+                    else if (baseFont.Size >= 11)
+                        scaledSize = Math.Min(scaledSize, 9f);
+                    else
+                        scaledSize = Math.Min(scaledSize, 8f);
+                }
+
+                return new Font(baseFont.FontFamily, scaledSize, baseFont.Style);
+            }
+        }
+
+        #endregion
+
+        #region UI Helper Methods
 
         private void EnableDoubleBuffering(Control control)
         {
@@ -744,14 +919,27 @@ namespace SysBot.Pokemon.WinForms
         {
             if (controlButtonsPanel != null && headerPanel != null)
             {
-                int rightMargin = 40;
-                int minLeftPosition = titleLabel.Right + 50;
+                int rightMargin = 20;
+                int minLeftPosition = titleLabel.Right + 20;
+
+                int availableWidth = headerPanel.Width - minLeftPosition - rightMargin;
+
+                if (availableWidth < 250)
+                {
+                    controlButtonsPanel.MaximumSize = new Size(250, 100);
+                    controlButtonsPanel.WrapContents = true;
+                }
+                else
+                {
+                    controlButtonsPanel.MaximumSize = new Size(500, 50);
+                    controlButtonsPanel.WrapContents = false;
+                }
+
                 int desiredX = headerPanel.Width - controlButtonsPanel.Width - rightMargin;
-                controlButtonsPanel.Location = new Point(Math.Max(minLeftPosition, desiredX), 30);
+                controlButtonsPanel.Location = new Point(Math.Max(minLeftPosition, desiredX),
+                    controlButtonsPanel.Height > 50 ? 15 : 30);
             }
         }
-
-        private LinearGradientBrush _logoBrush;
 
         private void ConfigureSearchOption(CheckBox checkBox, string text, string tooltip)
         {
@@ -761,7 +949,7 @@ namespace SysBot.Pokemon.WinForms
             checkBox.FlatAppearance.BorderColor = Color.FromArgb(60, 60, 60);
             checkBox.FlatAppearance.CheckedBackColor = Color.FromArgb(88, 101, 242);
             checkBox.FlatStyle = FlatStyle.Flat;
-            checkBox.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+            checkBox.Font = ScaleFont(new Font("Segoe UI", 8F, FontStyle.Bold));
             checkBox.ForeColor = Color.FromArgb(200, 200, 200);
             checkBox.Margin = new Padding(0, 0, 10, 0);
             checkBox.Size = new Size(30, 20);
@@ -781,13 +969,13 @@ namespace SysBot.Pokemon.WinForms
             btn.FlatAppearance.BorderSize = 0;
             btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(30, 30, 30);
             btn.FlatStyle = FlatStyle.Flat;
-            btn.Font = new Font("Segoe UI", 11F, FontStyle.Regular);
+            btn.Font = ScaleFont(new Font("Segoe UI", 10F, FontStyle.Regular));
             btn.ForeColor = Color.FromArgb(176, 176, 176);
             btn.Location = new Point(0, 40 + (index * 60));
             btn.Margin = new Padding(0, 0, 0, 10);
             btn.Name = $"btnNav{text.Replace(" ", "")}";
-            btn.Padding = new Padding(60, 0, 0, 0);
-            btn.Size = new Size(260, 50);
+            btn.Padding = new Padding(45, 0, 0, 0);
+            btn.Size = new Size(240, 50);
             btn.TabIndex = index;
             btn.Text = text;
             btn.TextAlign = ContentAlignment.MiddleLeft;
@@ -807,11 +995,13 @@ namespace SysBot.Pokemon.WinForms
                     e.Graphics.FillRectangle(brush, 0, 0, 4, btn.Height);
                 }
 
-                var iconRect = new Rectangle(20, (btn.Height - 24) / 2, 24, 24);
+                int iconSize = btn.Height < 45 ? 20 : 24;
+                var iconRect = new Rectangle(12, (btn.Height - iconSize) / 2, iconSize, iconSize);
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
                 e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
 
-                using var iconFont = new Font("Segoe MDL2 Assets", 16F);
+                float iconFontSize = btn.Height < 45 ? 14F : 16F;
+                using var iconFont = new Font("Segoe MDL2 Assets", iconFontSize);
                 string iconText = index switch
                 {
                     0 => "\uE77B",
@@ -876,34 +1066,36 @@ namespace SysBot.Pokemon.WinForms
             btn.FlatAppearance.BorderSize = 0;
             btn.FlatStyle = FlatStyle.Flat;
 
-            // Adaptive font sizing based on DPI
             float fontSize = 10F;
             using (Graphics g = btn.CreateGraphics())
             {
-                float dpiScale = g.DpiX / 96f; // 96 DPI is standard
-                fontSize = Math.Max(9F, 10F * dpiScale); // Scale font but keep minimum readable size
+                float dpiScale = g.DpiX / 96f;
+                fontSize = Math.Max(7F, 10F * dpiScale);
             }
+
+            if (Width < 900)
+                fontSize = Math.Max(7F, fontSize * 0.8f);
+            else if (Width < 1100)
+                fontSize = Math.Max(8F, fontSize * 0.9f);
 
             btn.Font = new Font("Segoe UI", fontSize, FontStyle.Bold);
             btn.ForeColor = Color.FromArgb(28, 28, 28);
-            btn.Margin = new Padding(5, 0, 5, 0);
+            btn.Margin = new Padding(3, 0, 3, 0);
             btn.Name = $"btn{text.Replace(" ", "")}";
-            btn.Padding = new Padding(15, 8, 15, 8); // Increased padding for better text fit
+            btn.Padding = new Padding(10, 5, 10, 5);
             btn.TabIndex = 0;
             btn.Text = text;
             btn.UseVisualStyleBackColor = false;
             btn.Tag = new ButtonAnimationState { BaseColor = baseColor };
 
-            // Auto-size based on content with minimum width
             btn.AutoSize = true;
             btn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            btn.MinimumSize = new Size(100, 40); // Minimum size to ensure visibility
-            btn.MaximumSize = new Size(200, 50); // Maximum size to prevent over-growth
+            btn.MinimumSize = new Size(70, 32);
+            btn.MaximumSize = new Size(160, 45);
 
             CreateRoundedButton(btn);
             ConfigureGlowButton(btn);
 
-            // Handle resize to maintain rounded corners
             btn.Resize += (s, e) => btn.Invalidate();
         }
 
@@ -911,7 +1103,7 @@ namespace SysBot.Pokemon.WinForms
         {
             nud.BackColor = Color.FromArgb(28, 28, 28);
             nud.BorderStyle = BorderStyle.None;
-            nud.Font = new Font("Segoe UI", 11F);
+            nud.Font = ScaleFont(new Font("Segoe UI", 10F));
             nud.ForeColor = Color.FromArgb(224, 224, 224);
             nud.Location = new Point(x, y);
             nud.Name = nud.Name;
@@ -924,7 +1116,7 @@ namespace SysBot.Pokemon.WinForms
             cb.BackColor = Color.FromArgb(28, 28, 28);
             cb.DropDownStyle = ComboBoxStyle.DropDownList;
             cb.FlatStyle = FlatStyle.Flat;
-            cb.Font = new Font("Segoe UI", 11F);
+            cb.Font = ScaleFont(new Font("Segoe UI", 10F));
             cb.ForeColor = Color.FromArgb(224, 224, 224);
             cb.Location = new Point(x, y);
             cb.Name = cb.Name;
@@ -985,18 +1177,16 @@ namespace SysBot.Pokemon.WinForms
 
         private void CreateRoundedButton(Button btn)
         {
-            // Handle the paint event to create rounded corners that adapt to button size
             btn.Paint += (s, e) => {
                 if (btn.Region != null) btn.Region.Dispose();
 
                 using var path = new GraphicsPath();
                 var rect = btn.ClientRectangle;
-                int radius = Math.Min(6, Math.Min(rect.Width, rect.Height) / 4); // Adaptive radius
+                int radius = Math.Min(6, Math.Min(rect.Width, rect.Height) / 4);
                 GraphicsExtensions.AddRoundedRectangle(path, rect, radius);
                 btn.Region = new Region(path);
             };
 
-            // Trigger initial paint
             btn.Invalidate();
         }
 
@@ -1007,13 +1197,156 @@ namespace SysBot.Pokemon.WinForms
             control.Region = new Region(path);
         }
 
+        private void ConfigureUpdateButton()
+        {
+            statusIndicator.BackColor = Color.FromArgb(100, 100, 100);
+            statusIndicator.Size = new Size(12, 12);
+            statusIndicator.Location = new Point(btnUpdate.ClientSize.Width - 25, 15);
+            statusIndicator.Name = "statusIndicator";
+            statusIndicator.Enabled = false;
+            statusIndicator.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            CreateCircularRegion(statusIndicator);
+            btnUpdate.Controls.Add(statusIndicator);
+            statusIndicator.BringToFront();
+
+            statusIndicator.Paint += (s, e) => {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                var rect = statusIndicator.ClientRectangle;
+                rect.Inflate(-1, -1);
+
+                using var brush = new SolidBrush(statusIndicator.BackColor);
+                e.Graphics.FillEllipse(brush, rect);
+
+                var mainForm = (Main)statusIndicator.FindForm();
+                if (mainForm != null && mainForm.hasUpdate)
+                {
+                    var highlightRect = new Rectangle(2, 2, 4, 4);
+                    using var highlightBrush = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
+                    e.Graphics.FillEllipse(highlightBrush, highlightRect);
+                }
+            };
+
+            var updateTooltip = new ToolTip();
+            updateTooltip.SetToolTip(btnUpdate, "Check for updates");
+            btnUpdate.MouseEnter += (s, e) => {
+                var mainForm = (Main)btnUpdate.FindForm();
+                if (mainForm != null && mainForm.hasUpdate)
+                {
+                    updateTooltip.SetToolTip(btnUpdate, "Update available! Click to download.");
+                }
+                else
+                {
+                    updateTooltip.SetToolTip(btnUpdate, "No updates available");
+                }
+            };
+
+            btnUpdate.Resize += (s, e) => {
+                if (statusIndicator != null && btnUpdate.Controls.Contains(statusIndicator))
+                {
+                    statusIndicator.Location = new Point(btnUpdate.ClientSize.Width - 25, 15);
+                }
+            };
+
+            btnUpdate.Layout += (s, e) => {
+                if (statusIndicator != null && btnUpdate.Controls.Contains(statusIndicator))
+                {
+                    statusIndicator.Location = new Point(btnUpdate.ClientSize.Width - 25, 15);
+                }
+            };
+
+            statusIndicator.Location = new Point(btnUpdate.ClientSize.Width - 25, 15);
+
+            btnUpdate.Paint += (s, e) => {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+
+                var animState = btnUpdate.Tag as ButtonAnimationState;
+
+                if (animState != null && animState.HoverProgress > 0 && animState.IsHovering)
+                {
+                    using var glowBrush = new SolidBrush(Color.FromArgb((int)(20 * animState.HoverProgress), 88, 101, 242));
+                    e.Graphics.FillRectangle(glowBrush, btnUpdate.ClientRectangle);
+                }
+
+                var iconColor = btnUpdate.ForeColor;
+                if (animState != null && animState.HoverProgress > 0)
+                {
+                    iconColor = Color.FromArgb(
+                        (int)(176 + (224 - 176) * animState.HoverProgress),
+                        (int)(176 + (224 - 176) * animState.HoverProgress),
+                        (int)(176 + (224 - 176) * animState.HoverProgress)
+                    );
+                }
+
+                float iconFontSize = 14F;
+                float textFontSize = 8.5F;
+                int iconX = 15;
+
+                if (btnUpdate.Width < 180)
+                {
+                    iconFontSize = 12F;
+                    textFontSize = 7.5F;
+                    iconX = 10;
+                }
+
+                using var iconFont = new Font("Segoe MDL2 Assets", iconFontSize);
+                var iconText = "\uE895";
+
+                using var iconBrush = new SolidBrush(iconColor);
+                var iconSize = e.Graphics.MeasureString(iconText, iconFont);
+
+                var iconY = (btnUpdate.Height - iconSize.Height) / 2;
+                e.Graphics.DrawString(iconText, iconFont, iconBrush, iconX, iconY);
+
+                using var textFont = ScaleFont(new Font("Segoe UI", textFontSize, FontStyle.Regular));
+                var text = "CHECK FOR UPDATES";
+
+                if (btnUpdate.Width < 170)
+                    text = "UPDATES";
+
+                var textSize = e.Graphics.MeasureString(text, textFont);
+                var textX = iconX + iconSize.Width + 6;
+                var textY = (btnUpdate.Height - textSize.Height) / 2;
+                e.Graphics.DrawString(text, textFont, iconBrush, textX, textY);
+
+                var mainForm = (Main)btnUpdate.FindForm();
+                if (mainForm != null && mainForm.hasUpdate && statusIndicator != null)
+                {
+                    var indicatorBounds = new Rectangle(
+                        statusIndicator.Left - 3,
+                        statusIndicator.Top - 3,
+                        statusIndicator.Width + 6,
+                        statusIndicator.Height + 6
+                    );
+
+                    for (int i = 3; i > 0; i--)
+                    {
+                        var glowAlpha = (int)(20 / i * (0.5 + 0.5 * Math.Sin(mainForm.pulsePhase)));
+                        using var glowBrush = new SolidBrush(Color.FromArgb(glowAlpha, 87, 242, 135));
+                        var glowRect = new Rectangle(
+                            indicatorBounds.X - i * 2,
+                            indicatorBounds.Y - i * 2,
+                            indicatorBounds.Width + i * 4,
+                            indicatorBounds.Height + i * 4
+                        );
+                        e.Graphics.FillEllipse(glowBrush, glowRect);
+                    }
+                }
+            };
+        }
+
+        #endregion
+
+        #region Paint Event Handlers
+
         private void LogoPanel_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
 
-            if (_logoBrush == null)
+            if (_logoBrush == null || _logoBrush.Rectangle != logoPanel.ClientRectangle)
             {
+                _logoBrush?.Dispose();
                 _logoBrush = new LinearGradientBrush(
                     logoPanel.ClientRectangle,
                     Color.FromArgb(88, 101, 242),
@@ -1023,7 +1356,13 @@ namespace SysBot.Pokemon.WinForms
 
             e.Graphics.FillRectangle(_logoBrush, logoPanel.ClientRectangle);
 
-            using var font = new Font("Segoe UI", 22F, FontStyle.Bold);
+            float fontSize = 22F;
+            if (Width < 900)
+                fontSize = 16F;
+            else if (Width < 1100)
+                fontSize = 19F;
+
+            using var font = ScaleFont(new Font("Segoe UI", fontSize, FontStyle.Bold));
             var text = "POKÉBOT";
             var textSize = e.Graphics.MeasureString(text, font);
             var x = (logoPanel.Width - textSize.Width) / 2;
@@ -1049,12 +1388,92 @@ namespace SysBot.Pokemon.WinForms
 
         private void FLP_Bots_Paint(object sender, PaintEventArgs e)
         {
-            if (FLP_Bots.Controls.Count == 0)
-            {
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
 
-                using var font = new Font("Segoe UI", 14F, FontStyle.Regular);
+            if (_currentModeImage != null)
+            {
+                var image = _currentModeImage;
+                var panelWidth = FLP_Bots.ClientSize.Width;
+                var panelHeight = FLP_Bots.ClientSize.Height;
+
+                float scale = 1.0f;
+                if (panelWidth < 600)
+                    scale = 0.6f;
+                else if (panelWidth < 800)
+                    scale = 0.75f;
+                else if (panelWidth < 1000)
+                    scale = 0.85f;
+
+                int imageWidth = (int)(image.Width * scale);
+                int imageHeight = (int)(image.Height * scale);
+
+                int x = (panelWidth - imageWidth) / 2;
+
+                int y;
+
+                if (FLP_Bots.Controls.Count > 0)
+                {
+                    int lastControlBottom = 0;
+                    foreach (Control ctrl in FLP_Bots.Controls)
+                    {
+                        if (ctrl.Visible)
+                        {
+                            int ctrlBottom = ctrl.Bottom - FLP_Bots.VerticalScroll.Value;
+                            if (ctrlBottom > lastControlBottom && ctrlBottom < panelHeight)
+                                lastControlBottom = ctrlBottom;
+                        }
+                    }
+
+                    y = lastControlBottom + 20;
+
+                    if (y + imageHeight > panelHeight - 20)
+                    {
+                        y = panelHeight - imageHeight - 20;
+                    }
+
+                    var originalComposite = g.CompositingMode;
+                    g.CompositingMode = CompositingMode.SourceOver;
+
+                    using (var attributes = new ImageAttributes())
+                    {
+                        float[][] matrixItems = {
+                            new float[] {1, 0, 0, 0, 0},
+                            new float[] {0, 1, 0, 0, 0},
+                            new float[] {0, 0, 1, 0, 0},
+                            new float[] {0, 0, 0, 0.25f, 0},
+                            new float[] {0, 0, 0, 0, 1}
+                        };
+                        var colorMatrix = new ColorMatrix(matrixItems);
+                        attributes.SetColorMatrix(colorMatrix);
+
+                        g.DrawImage(image,
+                            new Rectangle(x, y, imageWidth, imageHeight),
+                            0, 0, image.Width, image.Height,
+                            GraphicsUnit.Pixel, attributes);
+                    }
+
+                    g.CompositingMode = originalComposite;
+                }
+                else
+                {
+                    y = panelHeight > 500 ? 80 : 40;
+
+                    g.DrawImage(image, new Rectangle(x, y, imageWidth, imageHeight));
+
+                    using var font = ScaleFont(new Font("Segoe UI", 14F, FontStyle.Regular));
+                    using var brush = new SolidBrush(Color.FromArgb(100, 176, 176, 176));
+                    var text = "No bots configured. Add a bot using the form above.";
+                    var size = g.MeasureString(text, font);
+                    g.DrawString(text, font, brush,
+                        (panelWidth - size.Width) / 2,
+                        y + imageHeight + 20);
+                }
+            }
+            else if (FLP_Bots.Controls.Count == 0)
+            {
+                using var font = ScaleFont(new Font("Segoe UI", 14F, FontStyle.Regular));
                 using var brush = new SolidBrush(Color.FromArgb(100, 176, 176, 176));
                 var text = "No bots configured. Add a bot using the form above.";
                 var size = e.Graphics.MeasureString(text, font);
@@ -1090,21 +1509,17 @@ namespace SysBot.Pokemon.WinForms
                 }
             }
 
-            // Update status indicator pulse with throttling
             UpdateStatusIndicatorPulse();
         }
 
         private void TransitionPanels(int index)
         {
-            // Hide all panels
             botsPanel.Visible = false;
             hubPanel.Visible = false;
             logsPanel.Visible = false;
 
-            // Force refresh of content panel
             contentPanel.Refresh();
 
-            // Show the selected panel
             switch (index)
             {
                 case 0:
@@ -1115,7 +1530,7 @@ namespace SysBot.Pokemon.WinForms
                     break;
                 case 2:
                     logsPanel.Visible = true;
-                    logsPanel.Refresh(); // Extra refresh for logs panel
+                    logsPanel.Refresh();
                     break;
             }
         }
@@ -1126,6 +1541,10 @@ namespace SysBot.Pokemon.WinForms
             return controls.SelectMany(ctrl => GetAllControls(ctrl)).Concat(controls);
         }
 
+        #endregion
+
+        #region System Tray
+
         private void ConfigureSystemTray()
         {
             trayIcon.Icon = Icon;
@@ -1134,7 +1553,7 @@ namespace SysBot.Pokemon.WinForms
             trayIcon.DoubleClick += TrayIcon_DoubleClick;
 
             trayContextMenu.BackColor = Color.FromArgb(35, 35, 35);
-            trayContextMenu.Font = new Font("Segoe UI", 10F);
+            trayContextMenu.Font = ScaleFont(new Font("Segoe UI", 10F));
             trayContextMenu.Renderer = new ModernMenuRenderer();
 
             trayMenuShow.Text = "Show Window";
@@ -1176,69 +1595,9 @@ namespace SysBot.Pokemon.WinForms
             trayIcon.ContextMenuStrip = trayContextMenu;
         }
 
-        private void TrayIcon_DoubleClick(object sender, EventArgs e)
-        {
-            ShowFromTray();
-        }
+        #endregion
 
-        private void TrayMenuShow_Click(object sender, EventArgs e)
-        {
-            ShowFromTray();
-        }
-
-        private void TrayMenuExit_Click(object sender, EventArgs e)
-        {
-            _isReallyClosing = true;
-            Close();
-        }
-
-        private void ShowFromTray()
-        {
-            Show();
-            WindowState = FormWindowState.Normal;
-            ShowInTaskbar = true;
-            trayIcon.Visible = false;
-            BringToFront();
-            Activate();
-
-            int headerHeight = headerPanel.Height + 10;
-
-            if (hubPanel.Padding.Top <= 40)
-                hubPanel.Padding = new Padding(40, headerHeight, 40, 40);
-
-            if (logsPanel.Padding.Top <= 40)
-                logsPanel.Padding = new Padding(40, headerHeight, 40, 40);
-
-            hubPanel.PerformLayout();
-            PG_Hub.Refresh();
-
-            logsPanel.PerformLayout();
-            RTB_Logs.Refresh();
-        }
-
-        private void MinimizeToTray()
-        {
-            Hide();
-            ShowInTaskbar = false;
-            trayIcon.Visible = true;
-
-            var runningBots = FLP_Bots.Controls.OfType<BotController>().Count(c => c.GetBot()?.IsRunning ?? false);
-            var totalBots = FLP_Bots.Controls.OfType<BotController>().Count();
-
-            string message = totalBots == 0
-                ? "No bots configured"
-                : $"{runningBots} of {totalBots} bots running";
-
-            trayIcon.ShowBalloonTip(2000, "PokéBot Minimized", message, ToolTipIcon.Info);
-        }
-
-        private void Main_Resize(object sender, EventArgs e)
-        {
-            if (WindowState == FormWindowState.Minimized && !_isReallyClosing)
-            {
-                MinimizeToTray();
-            }
-        }
+        #region Custom Classes
 
         private class ModernMenuRenderer : ToolStripProfessionalRenderer
         {
@@ -1281,6 +1640,8 @@ namespace SysBot.Pokemon.WinForms
         }
 
         #endregion
+
+        #region Controls Declaration
 
         private TableLayoutPanel mainLayoutPanel;
         private Panel sidebarPanel;
@@ -1328,7 +1689,6 @@ namespace SysBot.Pokemon.WinForms
         private ContextMenuStrip trayContextMenu;
         private ToolStripMenuItem trayMenuShow;
         private ToolStripMenuItem trayMenuExit;
-        private bool _isReallyClosing = false;
 
         private Button updater => btnUpdate;
         private Button B_Start => btnStart;
@@ -1339,6 +1699,8 @@ namespace SysBot.Pokemon.WinForms
         private TabPage Tab_Hub;
         private TabPage Tab_Logs;
         private Panel ButtonPanel => controlButtonsPanel;
+
+        #endregion
     }
 
     public static class GraphicsExtensions
@@ -1353,3 +1715,7 @@ namespace SysBot.Pokemon.WinForms
         }
     }
 }
+
+#pragma warning restore CS8618
+#pragma warning restore CS8625
+#pragma warning restore CS8669

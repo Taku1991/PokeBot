@@ -30,7 +30,8 @@ namespace SysBot.Pokemon.WinForms
         {
             InitializeComponent();
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
-                    ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw, true);
+                    ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw |
+                    ControlStyles.OptimizedDoubleBuffer, true);
 
             ConfigureContextMenu();
             ConfigureChildControls();
@@ -340,7 +341,7 @@ namespace SysBot.Pokemon.WinForms
                 if (bot == null)
                     return "ERROR";
 
-                // Check if bot is stopped first - this is the key fix
+                // Check if bot is stopped first
                 if (!botSource.IsRunning)
                     return "STOPPED";
 
@@ -676,8 +677,8 @@ namespace SysBot.Pokemon.WinForms
                 BotControlCommand.Idle => running && !paused,
                 BotControlCommand.Resume => paused,
                 BotControlCommand.Restart => true,
-                BotControlCommand.ScreenOnAll => running, // Only when running
-                BotControlCommand.ScreenOffAll => running, // Only when running
+                BotControlCommand.ScreenOnAll => running,
+                BotControlCommand.ScreenOffAll => running,
                 _ => false,
             };
         }
