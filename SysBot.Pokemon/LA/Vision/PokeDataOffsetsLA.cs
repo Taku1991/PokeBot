@@ -9,7 +9,7 @@ public class PokeDataOffsetsLA
 {
     public const int BoxFormatSlotSize = 0x168;
 
-    public const string LAGameVersion = "1.1.1";
+    public const string LAGameVersion = "1.1.1a";
 
     public const string LegendsArceusID = "01001F5010DFA000";
 

@@ -127,14 +127,11 @@ namespace SysBot.Pokemon.WinForms
                     LogUtil.LogError($"Failed to initialize web server: {ex.Message}", "System");
                 }
             });
-<<<<<<< HEAD
             LogUtil.LogInfo($"Bot initialization complete", "System");
 
             // Web-API starten auf Port 6500
             WebApiIntegration.StartWebApi(RunningEnvironment, 6500);
             LogUtil.LogInfo("Web-API wurde auf Port 6500 gestartet.", "WebServer");
-=======
->>>>>>> upstream/master
         }
 
         #region Enhanced Search Implementation
