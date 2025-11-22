@@ -149,9 +149,9 @@ public static class GermanShowdownTranslator
         // Translate species name
         result = TranslateSpeciesName(result);
 
-        // Translate gender indicators
-        result = result.Replace("(Männlich)", "(M)");
-        result = result.Replace("(Weiblich)", "(F)");
+        // Translate gender indicators (with optional spaces, case-insensitive)
+        result = Regex.Replace(result, @"\(\s*Männlich\s*\)", "(M)", RegexOptions.IgnoreCase);
+        result = Regex.Replace(result, @"\(\s*Weiblich\s*\)", "(F)", RegexOptions.IgnoreCase);
 
         return result;
     }
@@ -224,8 +224,8 @@ public static class GermanShowdownTranslator
         var result = stats;
         foreach (var kvp in GermanToEnglishKeywords)
         {
-            // Use word boundaries to avoid partial replacements
-            result = Regex.Replace(result, $@"\b{Regex.Escape(kvp.Key)}\b", kvp.Value);
+            // Use word boundaries to avoid partial replacements, case-insensitive
+            result = Regex.Replace(result, $@"\b{Regex.Escape(kvp.Key)}\b", kvp.Value, RegexOptions.IgnoreCase);
         }
         return result;
     }
