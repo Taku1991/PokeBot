@@ -120,4 +120,142 @@
   <data name="Hub_QueuesEmpty" xml:space="preserve">
     <value>Queues are empty.</value>
   </data>
+
+  <!-- Additional Trade Module Messages -->
+  <data name="Trade_LegalizationTimeout" xml:space="preserve">
+    <value>Set took too long to legalize.</value>
+  </data>
+  <data name="Trade_QueueList" xml:space="preserve">
+    <value>These are the users who are currently waiting:</value>
+  </data>
+  <data name="Trade_BatchProcessing" xml:space="preserve">
+    <value>{0} Processing your batch trade with {1} Pokémon...</value>
+  </data>
+  <data name="Trade_BatchError" xml:space="preserve">
+    <value>{0} An error occurred while processing your batch trade. Please try again.</value>
+  </data>
+  <data name="Trade_AlreadyInQueue" xml:space="preserve">
+    <value>You already have an existing trade in the queue that cannot be cleared. Please wait until it is processed.</value>
+  </data>
+  <data name="Trade_EggGenerationTimeout" xml:space="preserve">
+    <value>Egg generation took too long.</value>
+  </data>
+  <data name="Trade_EggGenerationFailed" xml:space="preserve">
+    <value>Failed to generate egg from the provided set.</value>
+  </data>
+  <data name="Trade_EggConversionFailed" xml:space="preserve">
+    <value>Oops! I wasn't able to create an egg for that.</value>
+  </data>
+
+  <!-- Embed Messages - English -->
+  <data name="Embed_Notice_Title" xml:space="preserve">
+    <value>Notice</value>
+  </data>
+  <data name="Embed_TradeCanceled_Title" xml:space="preserve">
+    <value>Your Trade was Canceled...</value>
+  </data>
+  <data name="Embed_TradeCanceled_Description" xml:space="preserve">
+    <value>Your trade was canceled.
+Please try again. If the issue persists, restart your switch and check your internet connection.
+
+**Reason**: {0}</value>
+  </data>
+  <data name="Embed_TradeCode_Title" xml:space="preserve">
+    <value>Here's your trade code!</value>
+  </data>
+  <data name="Embed_TradeCompleted_Title" xml:space="preserve">
+    <value>Trade Completed!</value>
+  </data>
+  <data name="Embed_TradeInitializing_Title" xml:space="preserve">
+    <value>Loading the Trade Portal...</value>
+  </data>
+  <data name="Embed_TradeInitializing_Description" xml:space="preserve">
+    <value>**Pokemon**: {0}
+**Trade Code**: {1:0000 0000}</value>
+  </data>
+  <data name="Embed_TradeSearching_Title" xml:space="preserve">
+    <value>Now Searching for You, {0}...</value>
+  </data>
+  <data name="Embed_TradeSearching_Description" xml:space="preserve">
+    <value>**Waiting for**: {0}
+**My IGN**: {1}</value>
+  </data>
+  <data name="Embed_MysteryEgg" xml:space="preserve">
+    <value>**Mystery Egg**</value>
+  </data>
+  <data name="Embed_GetReady_Title" xml:space="preserve">
+    <value>🎯 You're Up Next!</value>
+  </data>
+  <data name="Embed_GetReady_Description" xml:space="preserve">
+    <value>Your trade will begin very soon. Please be ready!{0}</value>
+  </data>
+  <data name="Embed_GetReady_Footer" xml:space="preserve">
+    <value>Get ready to connect!</value>
+  </data>
+  <data name="Embed_TradeQueued_Title" xml:space="preserve">
+    <value>Trade Request Queued</value>
+  </data>
+  <data name="Embed_TradeQueued_Description" xml:space="preserve">
+    <value>Your trade request has been queued. Position in queue: **{0}**</value>
+  </data>
+  <data name="Embed_BatchTradeQueued_Title" xml:space="preserve">
+    <value>🎁 Batch Trade Request Queued</value>
+  </data>
+  <data name="Embed_BatchTradeQueued_Description" xml:space="preserve">
+    <value>Your batch trade request ({0} Pokémon) has been queued.
+
+⚠️ **Important Instructions:**
+• Stay in the trade for all {0} trades
+• Have all {0} Pokémon ready to trade
+• Do not exit until you see the completion message
+
+Position in queue: **{1}**</value>
+  </data>
+  <data name="Embed_QueueFooter" xml:space="preserve">
+    <value>Estimated wait time: {0}</value>
+  </data>
+  <data name="Embed_LessThanMinute" xml:space="preserve">
+    <value>Less than a minute</value>
+  </data>
+  <data name="Embed_Minutes" xml:space="preserve">
+    <value>{0} minutes</value>
+  </data>
+  <data name="Trade_WaitingFor" xml:space="preserve">
+    <value>I'm waiting for you{0}{1}! My IGN is **{2}**.</value>
+  </data>
+  <data name="Trade_BatchStarting" xml:space="preserve">
+    <value>Starting batch trade ({0} Pokémon total). **Please select your first Pokémon!**</value>
+  </data>
+  <data name="Trade_BatchSelectNext" xml:space="preserve">
+    <value>Trade {0}/{1}: Now trading {2}. **Select your next Pokémon!**</value>
+  </data>
+  <data name="Trade_BatchCanceled" xml:space="preserve">
+    <value>Batch trade canceled: {0}. All remaining trades have been canceled.</value>
+  </data>
+  <data name="Trade_Finished" xml:space="preserve">
+    <value>Trade finished!</value>
+  </data>
+  <data name="Trade_FinishedEnjoy" xml:space="preserve">
+    <value>Trade finished. Enjoy!</value>
+  </data>
+  <data name="Trade_HereIsWhatYouTraded" xml:space="preserve">
+    <value>Here's what you traded me!</value>
+  </data>
+  <data name="Trade_InitializingBatch" xml:space="preserve">
+    <value>Starting your batch trade! Trading {0} Pokémon.
+
+{1}</value>
+  </data>
+  <data name="Trade_InitializingBatchProgress" xml:space="preserve">
+    <value>Preparing trade {0}/{1}: {2}{3}</value>
+  </data>
+  <data name="Trade_InitializingSingle" xml:space="preserve">
+    <value>Initializing trade{0}. Please be ready.</value>
+  </data>
+  <data name="Trade_PreparingNext" xml:space="preserve">
+    <value>Preparing trade {0}/{1}...</value>
+  </data>
+  <data name="Trade_YourCodeIs" xml:space="preserve">
+    <value>Initializing trade{0}. Please be ready. Your code is</value>
+  </data>
 </root>

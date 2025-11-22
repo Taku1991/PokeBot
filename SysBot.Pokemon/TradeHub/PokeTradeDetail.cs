@@ -68,9 +68,12 @@ namespace SysBot.Pokemon
         public bool SetEdited { get; set; }
         public List<TPoke>? BatchTrades { get; set; }
 
+        /// <summary> Preferred language for notifications (e.g., "en", "de") </summary>
+        public string PreferredLanguage { get; }
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-        public PokeTradeDetail(TPoke pkm, PokeTradeTrainerInfo info, IPokeTradeNotifier<TPoke> notifier, PokeTradeType type, int code, bool favored = false, List<Pictocodes>? lgcode = null, int batchTradeNumber = 0, int totalBatchTrades = 0, bool isMysteryEgg = false, int uniqueTradeID = 0, bool ignoreAutoOT = false, bool setEdited = false)
+        public PokeTradeDetail(TPoke pkm, PokeTradeTrainerInfo info, IPokeTradeNotifier<TPoke> notifier, PokeTradeType type, int code, bool favored = false, List<Pictocodes>? lgcode = null, int batchTradeNumber = 0, int totalBatchTrades = 0, bool isMysteryEgg = false, int uniqueTradeID = 0, bool ignoreAutoOT = false, bool setEdited = false, string preferredLanguage = "en")
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             ID = Interlocked.Increment(ref CreatedCount) % 50000;
@@ -90,6 +93,7 @@ namespace SysBot.Pokemon
             UniqueTradeID = uniqueTradeID;
             IgnoreAutoOT = ignoreAutoOT;
             SetEdited = setEdited;
+            PreferredLanguage = preferredLanguage;
         }
 
         public void TradeInitialize(PokeRoutineExecutor<TPoke> routine) => Notifier.TradeInitialize(routine, this);

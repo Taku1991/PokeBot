@@ -24,6 +24,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
     private int BatchTradeNumber { get; set; }
     private int TotalBatchTrades { get; }
     private bool IsMysteryEgg { get; }
+    private string PreferredLanguage { get; }
 
     private readonly ulong _traderID;
     private int _uniqueTradeID;
@@ -36,7 +37,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
 
     public readonly PokeTradeHub<T> Hub = SysCord<T>.Runner.Hub;
 
-    public DiscordTradeNotifier(T data, PokeTradeTrainerInfo info, int code, SocketUser trader, int batchTradeNumber, int totalBatchTrades, bool isMysteryEgg, List<Pictocodes> lgcode)
+    public DiscordTradeNotifier(T data, PokeTradeTrainerInfo info, int code, SocketUser trader, int batchTradeNumber, int totalBatchTrades, bool isMysteryEgg, List<Pictocodes> lgcode, string preferredLanguage = "en")
     {
         Data = data;
         Info = info;
@@ -46,6 +47,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
         TotalBatchTrades = totalBatchTrades;
         IsMysteryEgg = isMysteryEgg;
         LGCode = lgcode;
+        PreferredLanguage = preferredLanguage;
         _traderID = trader.Id;
         _uniqueTradeID = GetUniqueTradeID();
     }
@@ -205,7 +207,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
                 message = $"Initializing trade{receive}. Please be ready.";
             }
 
-            EmbedHelper.SendTradeInitializingEmbedAsync(Trader, speciesName, Code, IsMysteryEgg, message).ConfigureAwait(false);
+            EmbedHelper.SendTradeInitializingEmbedAsync(Trader, speciesName, Code, IsMysteryEgg, PreferredLanguage, message).ConfigureAwait(false);
         }
         else if (Data is PB7)
         {
@@ -214,7 +216,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
         }
         else
         {
-            EmbedHelper.SendTradeInitializingEmbedAsync(Trader, speciesName, Code, IsMysteryEgg).ConfigureAwait(false);
+            EmbedHelper.SendTradeInitializingEmbedAsync(Trader, speciesName, Code, IsMysteryEgg, PreferredLanguage).ConfigureAwait(false);
         }
     }
 
@@ -248,7 +250,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
                 }
             }
 
-            EmbedHelper.SendTradeSearchingEmbedAsync(Trader, trainer, routine.InGameName, additionalMessage).ConfigureAwait(false);
+            EmbedHelper.SendTradeSearchingEmbedAsync(Trader, trainer, routine.InGameName, PreferredLanguage, additionalMessage).ConfigureAwait(false);
         }
     }
 
@@ -261,7 +263,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
             ? $"Batch trade canceled: {msg}. All remaining trades have been canceled."
             : msg.ToString();
 
-        EmbedHelper.SendTradeCanceledEmbedAsync(Trader, cancelMessage).ConfigureAwait(false);
+        EmbedHelper.SendTradeCanceledEmbedAsync(Trader, cancelMessage, PreferredLanguage).ConfigureAwait(false);
     }
 
     public void TradeFinished(PokeRoutineExecutor<T> routine, PokeTradeDetail<T> info, T result)
@@ -316,7 +318,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
             message = $"Trade {BatchTradeNumber}/{TotalBatchTrades}: {message}";
         }
 
-        EmbedHelper.SendNotificationEmbedAsync(Trader, message).ConfigureAwait(false);
+        EmbedHelper.SendNotificationEmbedAsync(Trader, message, PreferredLanguage).ConfigureAwait(false);
     }
 
     public void SendNotification(PokeRoutineExecutor<T> routine, PokeTradeDetail<T> info, PokeTradeSummary message)

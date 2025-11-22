@@ -6,6 +6,7 @@ using PKHeX.Core;
 using PKHeX.Core.AutoMod;
 using PKHeX.Drawing.PokeSprite;
 using SysBot.Pokemon.Discord.Commands.Bots;
+using SysBot.Pokemon.Discord.Helpers;
 using SysBot.Pokemon.Helpers;
 using System;
 using System.Collections.Generic;
@@ -73,6 +74,9 @@ public static class QueueHelper<T> where T : PKM, new()
             return;
         }
 
+        // Get the preferred language from the current context
+        string preferredLanguage = LocalizationHelper.GetCurrentLanguageCode();
+
         try
         {
             // Only send trade code for non-batch trades (batch container will handle its own)
@@ -85,7 +89,7 @@ public static class QueueHelper<T> where T : PKM, new()
                 }
                 else
                 {
-                    await EmbedHelper.SendTradeCodeEmbedAsync(trader, code).ConfigureAwait(false);
+                    await EmbedHelper.SendTradeCodeEmbedAsync(trader, code, preferredLanguage).ConfigureAwait(false);
                 }
             }
 
@@ -110,17 +114,20 @@ public static class QueueHelper<T> where T : PKM, new()
         // Note: This method should only be called for individual trades now
         // Batch trades use AddBatchContainerToQueueAsync
 
+        // Get the preferred language from the current context
+        string preferredLanguage = LocalizationHelper.GetCurrentLanguageCode();
+
         var user = trader;
         var userID = user.Id;
         var name = user.Username;
         var trainer = new PokeTradeTrainerInfo(trainerName, userID);
         var notifier = new DiscordTradeNotifier<T>(pk, trainer, code, trader, batchTradeNumber, totalBatchTrades,
-            isMysteryEgg, lgcode: lgcode!);
+            isMysteryEgg, lgcode: lgcode!, preferredLanguage);
 
         int uniqueTradeID = GenerateUniqueTradeID();
 
         var detail = new PokeTradeDetail<T>(pk, trainer, notifier, t, code, sig == RequestSignificance.Favored,
-            lgcode, batchTradeNumber, totalBatchTrades, isMysteryEgg, uniqueTradeID, ignoreAutoOT, setEdited);
+            lgcode, batchTradeNumber, totalBatchTrades, isMysteryEgg, uniqueTradeID, ignoreAutoOT, setEdited, preferredLanguage);
 
         // Add user roles to context for AutoOT permission checking
         if (context.User is SocketGuildUser gUser)
@@ -311,15 +318,18 @@ public static class QueueHelper<T> where T : PKM, new()
 
     public static async Task AddBatchContainerToQueueAsync(SocketCommandContext context, int code, string trainer, T firstTrade, List<T> allTrades, RequestSignificance sig, SocketUser trader, int totalBatchTrades)
     {
+        // Get the preferred language from the current context
+        string preferredLanguage = LocalizationHelper.GetCurrentLanguageCode();
+
         var userID = trader.Id;
         var name = trader.Username;
         var trainer_info = new PokeTradeTrainerInfo(trainer, userID);
-        var notifier = new DiscordTradeNotifier<T>(firstTrade, trainer_info, code, trader, 1, totalBatchTrades, false, lgcode: []);
+        var notifier = new DiscordTradeNotifier<T>(firstTrade, trainer_info, code, trader, 1, totalBatchTrades, false, lgcode: [], preferredLanguage);
 
         int uniqueTradeID = GenerateUniqueTradeID();
 
         var detail = new PokeTradeDetail<T>(firstTrade, trainer_info, notifier, PokeTradeType.Batch, code,
-            sig == RequestSignificance.Favored, null, 1, totalBatchTrades, false, uniqueTradeID)
+            sig == RequestSignificance.Favored, null, 1, totalBatchTrades, false, uniqueTradeID, false, false, preferredLanguage)
         {
             BatchTrades = allTrades
         };
@@ -337,7 +347,7 @@ public static class QueueHelper<T> where T : PKM, new()
         var added = Info.AddToTradeQueue(trade, userID, false, sig == RequestSignificance.Owner);
 
         // Send trade code once
-        await EmbedHelper.SendTradeCodeEmbedAsync(trader, code).ConfigureAwait(false);
+        await EmbedHelper.SendTradeCodeEmbedAsync(trader, code, preferredLanguage).ConfigureAwait(false);
 
         // Start queue position updates for Discord notification
         if (added != QueueResultAdd.AlreadyInQueue && added != QueueResultAdd.NotAllowedItem && notifier is DiscordTradeNotifier<T> discordNotifier)

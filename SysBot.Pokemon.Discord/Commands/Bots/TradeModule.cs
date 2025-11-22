@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using PKHeX.Core;
 using PKHeX.Core.AutoMod;
 using SysBot.Base;
+using SysBot.Pokemon.Discord.Helpers;
 using SysBot.Pokemon.Helpers;
 using System;
 using System.Collections.Generic;
@@ -24,12 +25,14 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     [Summary("Shows your current trade count and medal status")]
     public async Task ShowMedalsCommand()
     {
+        LocalizationHelper.DetectAndSetCulture(Context.Message.Content);
+
         var tradeCodeStorage = new TradeCodeStorage();
         int totalTrades = tradeCodeStorage.GetTradeCount(Context.User.Id);
 
         if (totalTrades == 0)
         {
-            await ReplyAsync($"{Context.User.Username}, you haven't made any trades yet. Start trading to earn your first medal!");
+            await ReplyAsync(LocalizationHelper.GetString("Trade_NoTradesYet", Context.User.Username));
             return;
         }
 
@@ -139,15 +142,17 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     [RequireSudo]
     public async Task TradeAsyncAttachUser([Summary("Trade Code")] int code, [Remainder] string _)
     {
+        LocalizationHelper.DetectAndSetCulture(Context.Message.Content);
+
         if (Context.Message.MentionedUsers.Count > 1)
         {
-            await ReplyAsync("Too many mentions. Queue one user at a time.").ConfigureAwait(false);
+            await ReplyAsync(LocalizationHelper.GetString("Trade_TooManyMentions")).ConfigureAwait(false);
             return;
         }
 
         if (Context.Message.MentionedUsers.Count == 0)
         {
-            await ReplyAsync("A user must be mentioned in order to do this.").ConfigureAwait(false);
+            await ReplyAsync(LocalizationHelper.GetString("Trade_MustMentionUser")).ConfigureAwait(false);
             return;
         }
 
@@ -188,22 +193,24 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     [RequireQueueRole(nameof(DiscordManager.RolesEgg))]
     public async Task TradeEggAsync([Summary("Trade Code")] int code, [Summary("Showdown Set")][Remainder] string content)
     {
+        LocalizationHelper.DetectAndSetCulture(Context.Message.Content);
+
         var userID = Context.User.Id;
         if (!await Helpers<T>.EnsureUserNotInQueueAsync(userID))
         {
             await Helpers<T>.ReplyAndDeleteAsync(Context,
-                "You already have an existing trade in the queue that cannot be cleared. Please wait until it is processed.", 2);
+                LocalizationHelper.GetString("Trade_AlreadyInQueue"), 2);
             return;
         }
 
         content = ReusableActions.StripCodeBlock(content);
-        
+
         // Translate German Showdown sets to English
         if (GermanShowdownTranslator.IsGermanShowdown(content))
         {
             content = GermanShowdownTranslator.TranslateToEnglish(content);
         }
-        
+
         var set = new ShowdownSet(content);
         var template = AutoLegalityWrapper.GetTemplate(set);
 
@@ -219,8 +226,8 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                 if (result != LegalizationResult.Regenerated)
                 {
                     var reason = result == LegalizationResult.Timeout
-                        ? "Egg generation took too long."
-                        : "Failed to generate egg from the provided set.";
+                        ? LocalizationHelper.GetString("Trade_EggGenerationTimeout")
+                        : LocalizationHelper.GetString("Trade_EggGenerationFailed");
                     await Helpers<T>.ReplyAndDeleteAsync(Context, reason, 2);
                     return;
                 }
@@ -228,7 +235,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                 pkm = EntityConverter.ConvertToType(pkm, typeof(T), out _) ?? pkm;
                 if (pkm is not T pk)
                 {
-                    await Helpers<T>.ReplyAndDeleteAsync(Context, "Oops! I wasn't able to create an egg for that.", 2);
+                    await Helpers<T>.ReplyAndDeleteAsync(Context, LocalizationHelper.GetString("Trade_EggConversionFailed"), 2);
                     return;
                 }
 
@@ -473,6 +480,8 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     [RequireSudo]
     public async Task GetTradeListAsync()
     {
+        LocalizationHelper.DetectAndSetCulture(Context.Message.Content);
+
         string msg = Info.GetTradeList(PokeRoutineType.LinkTrade);
         var embed = new EmbedBuilder();
         embed.AddField(x =>
@@ -481,7 +490,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
             x.Value = msg;
             x.IsInline = false;
         });
-        await ReplyAsync("These are the users who are currently waiting:", embed: embed.Build()).ConfigureAwait(false);
+        await ReplyAsync(LocalizationHelper.GetString("Trade_QueueList"), embed: embed.Build()).ConfigureAwait(false);
     }
 
     [Command("fixOTList")]
@@ -490,6 +499,8 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     [RequireSudo]
     public async Task GetFixListAsync()
     {
+        LocalizationHelper.DetectAndSetCulture(Context.Message.Content);
+
         string msg = Info.GetTradeList(PokeRoutineType.FixOT);
         var embed = new EmbedBuilder();
         embed.AddField(x =>
@@ -498,7 +509,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
             x.Value = msg;
             x.IsInline = false;
         });
-        await ReplyAsync("These are the users who are currently waiting:", embed: embed.Build()).ConfigureAwait(false);
+        await ReplyAsync(LocalizationHelper.GetString("Trade_QueueList"), embed: embed.Build()).ConfigureAwait(false);
     }
 
     [Command("listevents")]
@@ -565,6 +576,8 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     [RequireQueueRole(nameof(DiscordManager.RolesBatchTrade))]
     public async Task BatchTradeAsync([Summary("List of Showdown Sets separated by '---'")][Remainder] string content)
     {
+        LocalizationHelper.DetectAndSetCulture(Context.Message.Content);
+
         var tradeConfig = SysCord<T>.Runner.Config.Trade.TradeConfiguration;
 
         // Check if batch trades are allowed
@@ -579,7 +592,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
         if (!await Helpers<T>.EnsureUserNotInQueueAsync(userID))
         {
             await Helpers<T>.ReplyAndDeleteAsync(Context,
-                "You already have an existing trade in the queue that cannot be cleared. Please wait until it is processed.", 2);
+                LocalizationHelper.GetString("Trade_AlreadyInQueue"), 2);
             return;
         }
 
@@ -607,7 +620,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
             return;
         }
 
-        var processingMessage = await Context.Channel.SendMessageAsync($"{Context.User.Mention} Processing your batch trade with {trades.Count} Pokémon...");
+        var processingMessage = await Context.Channel.SendMessageAsync(LocalizationHelper.GetString("Trade_BatchProcessing", Context.User.Mention, trades.Count));
 
         _ = Task.Run(async () =>
         {
@@ -666,7 +679,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                 }
                 catch { }
 
-                await Context.Channel.SendMessageAsync($"{Context.User.Mention} An error occurred while processing your batch trade. Please try again.");
+                await Context.Channel.SendMessageAsync(LocalizationHelper.GetString("Trade_BatchError", Context.User.Mention));
                 Base.LogUtil.LogError($"Batch trade processing error: {ex.Message}", nameof(BatchTradeAsync));
             }
         });
@@ -681,11 +694,13 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
 
     private async Task ProcessTradeAsync(int code, string content, bool isHiddenTrade = false)
     {
+        LocalizationHelper.DetectAndSetCulture(Context.Message.Content);
+
         var userID = Context.User.Id;
         if (!await Helpers<T>.EnsureUserNotInQueueAsync(userID))
         {
             await Helpers<T>.ReplyAndDeleteAsync(Context,
-                "You already have an existing trade in the queue that cannot be cleared. Please wait until it is processed.", 2);
+                LocalizationHelper.GetString("Trade_AlreadyInQueue"), 2);
             return;
         }
 

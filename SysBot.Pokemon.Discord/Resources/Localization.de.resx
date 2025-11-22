@@ -120,4 +120,142 @@
   <data name="Hub_QueuesEmpty" xml:space="preserve">
     <value>Warteschlangen sind leer.</value>
   </data>
+
+  <!-- Additional Trade Module Messages - German -->
+  <data name="Trade_LegalizationTimeout" xml:space="preserve">
+    <value>Die Legalisierung des Sets hat zu lange gedauert.</value>
+  </data>
+  <data name="Trade_QueueList" xml:space="preserve">
+    <value>Diese Benutzer warten derzeit:</value>
+  </data>
+  <data name="Trade_BatchProcessing" xml:space="preserve">
+    <value>{0} Verarbeite deinen Batch-Tausch mit {1} Pokémon...</value>
+  </data>
+  <data name="Trade_BatchError" xml:space="preserve">
+    <value>{0} Ein Fehler ist beim Verarbeiten deines Batch-Tauschs aufgetreten. Bitte versuche es erneut.</value>
+  </data>
+  <data name="Trade_AlreadyInQueue" xml:space="preserve">
+    <value>Du hast bereits einen laufenden Tausch in der Warteschlange, der nicht entfernt werden kann. Bitte warte, bis er verarbeitet wurde.</value>
+  </data>
+  <data name="Trade_EggGenerationTimeout" xml:space="preserve">
+    <value>Die Ei-Generierung hat zu lange gedauert.</value>
+  </data>
+  <data name="Trade_EggGenerationFailed" xml:space="preserve">
+    <value>Konnte kein Ei aus dem bereitgestellten Set generieren.</value>
+  </data>
+  <data name="Trade_EggConversionFailed" xml:space="preserve">
+    <value>Hoppla! Ich konnte dafür kein Ei erstellen.</value>
+  </data>
+
+  <!-- Embed Messages - German -->
+  <data name="Embed_Notice_Title" xml:space="preserve">
+    <value>Hinweis</value>
+  </data>
+  <data name="Embed_TradeCanceled_Title" xml:space="preserve">
+    <value>Dein Tausch wurde abgebrochen...</value>
+  </data>
+  <data name="Embed_TradeCanceled_Description" xml:space="preserve">
+    <value>Dein Tausch wurde abgebrochen.
+Bitte versuche es erneut. Falls das Problem weiterhin besteht, starte deine Switch neu und überprüfe deine Internetverbindung.
+
+**Grund**: {0}</value>
+  </data>
+  <data name="Embed_TradeCode_Title" xml:space="preserve">
+    <value>Hier ist dein Tauschcode!</value>
+  </data>
+  <data name="Embed_TradeCompleted_Title" xml:space="preserve">
+    <value>Tausch abgeschlossen!</value>
+  </data>
+  <data name="Embed_TradeInitializing_Title" xml:space="preserve">
+    <value>Lade das Tausch-Portal...</value>
+  </data>
+  <data name="Embed_TradeInitializing_Description" xml:space="preserve">
+    <value>**Pokémon**: {0}
+**Tauschcode**: {1:0000 0000}</value>
+  </data>
+  <data name="Embed_TradeSearching_Title" xml:space="preserve">
+    <value>Suche jetzt nach dir, {0}...</value>
+  </data>
+  <data name="Embed_TradeSearching_Description" xml:space="preserve">
+    <value>**Warte auf**: {0}
+**Mein IGN**: {1}</value>
+  </data>
+  <data name="Embed_MysteryEgg" xml:space="preserve">
+    <value>**Mysteriöses Ei**</value>
+  </data>
+  <data name="Embed_GetReady_Title" xml:space="preserve">
+    <value>🎯 Du bist als Nächstes dran!</value>
+  </data>
+  <data name="Embed_GetReady_Description" xml:space="preserve">
+    <value>Dein Tausch beginnt gleich. Bitte halte dich bereit!{0}</value>
+  </data>
+  <data name="Embed_GetReady_Footer" xml:space="preserve">
+    <value>Mach dich bereit!</value>
+  </data>
+  <data name="Embed_TradeQueued_Title" xml:space="preserve">
+    <value>Tauschantrag in Warteschlange</value>
+  </data>
+  <data name="Embed_TradeQueued_Description" xml:space="preserve">
+    <value>Dein Tauschantrag wurde in die Warteschlange eingereiht. Position in der Warteschlange: **{0}**</value>
+  </data>
+  <data name="Embed_BatchTradeQueued_Title" xml:space="preserve">
+    <value>🎁 Batch-Tausch in Warteschlange</value>
+  </data>
+  <data name="Embed_BatchTradeQueued_Description" xml:space="preserve">
+    <value>Dein Batch-Tausch ({0} Pokémon) wurde in die Warteschlange eingereiht.
+
+⚠️ **Wichtige Hinweise:**
+• Bleibe für alle {0} Tauschvorgänge im Tauschmenü
+• Halte alle {0} Pokémon zum Tausch bereit
+• Verlasse den Tausch nicht, bis du die Abschlussnachricht siehst
+
+Position in der Warteschlange: **{1}**</value>
+  </data>
+  <data name="Embed_QueueFooter" xml:space="preserve">
+    <value>Geschätzte Wartezeit: {0}</value>
+  </data>
+  <data name="Embed_LessThanMinute" xml:space="preserve">
+    <value>Weniger als eine Minute</value>
+  </data>
+  <data name="Embed_Minutes" xml:space="preserve">
+    <value>{0} Minuten</value>
+  </data>
+  <data name="Trade_WaitingFor" xml:space="preserve">
+    <value>Ich warte auf dich{0}{1}! Mein IGN ist **{2}**.</value>
+  </data>
+  <data name="Trade_BatchStarting" xml:space="preserve">
+    <value>Starte Batch-Tausch (insgesamt {0} Pokémon). **Bitte wähle dein erstes Pokémon aus!**</value>
+  </data>
+  <data name="Trade_BatchSelectNext" xml:space="preserve">
+    <value>Tausch {0}/{1}: Tausche jetzt {2}. **Wähle dein nächstes Pokémon aus!**</value>
+  </data>
+  <data name="Trade_BatchCanceled" xml:space="preserve">
+    <value>Batch-Tausch abgebrochen: {0}. Alle verbleibenden Tauschvorgänge wurden abgebrochen.</value>
+  </data>
+  <data name="Trade_Finished" xml:space="preserve">
+    <value>Tausch abgeschlossen!</value>
+  </data>
+  <data name="Trade_FinishedEnjoy" xml:space="preserve">
+    <value>Tausch abgeschlossen. Viel Spaß!</value>
+  </data>
+  <data name="Trade_HereIsWhatYouTraded" xml:space="preserve">
+    <value>Hier ist, was du mir getauscht hast!</value>
+  </data>
+  <data name="Trade_InitializingBatch" xml:space="preserve">
+    <value>Starte deinen Batch-Tausch! Tausche {0} Pokémon.
+
+{1}</value>
+  </data>
+  <data name="Trade_InitializingBatchProgress" xml:space="preserve">
+    <value>Bereite Tausch {0}/{1} vor: {2}{3}</value>
+  </data>
+  <data name="Trade_InitializingSingle" xml:space="preserve">
+    <value>Initialisiere Tausch{0}. Bitte halte dich bereit.</value>
+  </data>
+  <data name="Trade_PreparingNext" xml:space="preserve">
+    <value>Bereite Tausch {0}/{1} vor...</value>
+  </data>
+  <data name="Trade_YourCodeIs" xml:space="preserve">
+    <value>Initialisiere Tausch{0}. Bitte halte dich bereit. Dein Code ist</value>
+  </data>
 </root>
