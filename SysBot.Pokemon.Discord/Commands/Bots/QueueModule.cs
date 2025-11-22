@@ -15,7 +15,7 @@ public class QueueModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     private static TradeQueueInfo<T> Info => SysCord<T>.Runner.Hub.Queues.Info;
 
     [Command("queueMode")]
-    [Alias("qm")]
+    [Alias("qm", "warteschlangeModus", "wm")]
     [Summary("Changes how queueing is controlled (manual/threshold/interval).")]
     [RequireSudo]
     public async Task ChangeQueueModeAsync([Summary("Queue mode")] QueueOpening mode)
@@ -25,7 +25,7 @@ public class QueueModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("queueClearAll")]
-    [Alias("qca", "tca")]
+    [Alias("qca", "tca", "warteschlangeAllesLöschen", "wal")]
     [Summary("Clears all users from the trade queues.")]
     [RequireSudo]
     public async Task ClearAllTradesAsync()
@@ -35,7 +35,7 @@ public class QueueModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("queueClear")]
-    [Alias("qc", "tc")]
+    [Alias("qc", "tc", "warteschlangeRaus", "wr")]
     [Summary("Clears the user from the trade queues. Will not remove a user if they are being processed.")]
     public async Task ClearTradeAsync()
     {
@@ -44,7 +44,7 @@ public class QueueModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("queueClearUser")]
-    [Alias("qcu", "tcu")]
+    [Alias("qcu", "tcu", "warteschlangeBenutzerRaus", "wbr")]
     [Summary("Clears the user from the trade queues. Will not remove a user if they are being processed.")]
     [RequireSudo]
     public async Task ClearTradeUserAsync([Summary("Discord user ID")] ulong id)
@@ -54,7 +54,7 @@ public class QueueModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("queueClearUser")]
-    [Alias("qcu", "tcu")]
+    [Alias("qcu", "tcu", "warteschlangeBenutzerRaus", "wbr")]
     [Summary("Clears the user from the trade queues. Will not remove a user if they are being processed.")]
     [RequireSudo]
     public async Task ClearTradeUserAsync([Summary("Username of the person to clear")] string _)
@@ -67,7 +67,7 @@ public class QueueModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("queueClearUser")]
-    [Alias("qcu", "tcu")]
+    [Alias("qcu", "tcu", "warteschlangeBenutzerRaus", "wbr")]
     [Summary("Clears the user from the trade queues. Will not remove a user if they are being processed.")]
     [RequireSudo]
     public async Task ClearTradeUserAsync()
@@ -83,7 +83,7 @@ public class QueueModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("deleteTradeCode")]
-    [Alias("dtc")]
+    [Alias("dtc", "tauschcodeLöschen", "tcl")]
     [Summary("Deletes the stored trade code for the user.")]
     public async Task DeleteTradeCodeAsync()
     {
@@ -93,7 +93,7 @@ public class QueueModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("queueStatus")]
-    [Alias("qs", "ts")]
+    [Alias("qs", "ts", "warteschlangeStatus", "ws", "position", "pos")]
     [Summary("Checks the user's position in the queue.")]
     public async Task GetTradePositionAsync()
     {
@@ -115,7 +115,7 @@ public class QueueModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("queueList")]
-    [Alias("ql")]
+    [Alias("ql", "warteschlangeListe", "wl", "liste")]
     [Summary("Shows a nice embed of the current queue with species, trade type, and username.")]
     [RequireSudo]
     public async Task ListUserQueue()

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Trade Module Messages -->
+  <data name="Trade_NoTradesYet" xml:space="preserve">
+    <value>{0}, you haven't made any trades yet. Start trading to earn your first medal!</value>
+  </data>
+  <data name="Trade_TooManyMentions" xml:space="preserve">
+    <value>Too many mentions. Queue one user at a time.</value>
+  </data>
+  <data name="Trade_MustMentionUser" xml:space="preserve">
+    <value>A user must be mentioned in order to do this.</value>
+  </data>
+  <data name="Trade_QueueFull" xml:space="preserve">
+    <value>Queue is full! Unable to add: {0}</value>
+  </data>
+  <data name="Trade_Added" xml:space="preserve">
+    <value>Added {0} to the queue.</value>
+  </data>
+  <data name="Trade_InvalidCode" xml:space="preserve">
+    <value>Invalid trade code!</value>
+  </data>
+  <data name="Trade_NoAttachment" xml:space="preserve">
+    <value>No file attachment provided!</value>
+  </data>
+  
+  <!-- Command Summaries -->
+  <data name="Trade_Summary" xml:space="preserve">
+    <value>Makes the bot trade you a Pokémon converted from the provided Showdown Set.</value>
+  </data>
+  <data name="HideTrade_Summary" xml:space="preserve">
+    <value>Makes the bot trade you a Pokémon without showing trade embed details.</value>
+  </data>
+  <data name="Medals_Summary" xml:space="preserve">
+    <value>Shows your current trade count and medal status</value>
+  </data>
+  <data name="Egg_Summary" xml:space="preserve">
+    <value>Orders an egg based on the provided Showdown Set.</value>
+  </data>
+  <data name="FixOT_Summary" xml:space="preserve">
+    <value>Fixes the OT data of a Pokémon by using the provided Showdown Set.</value>
+  </data>
+  
+  <!-- Queue Module Messages -->
+  <data name="Queue_Position" xml:space="preserve">
+    <value>You are in position {0} in the queue.</value>
+  </data>
+  <data name="Queue_NotInQueue" xml:space="preserve">
+    <value>You are not currently in the queue.</value>
+  </data>
+  <data name="Queue_Removed" xml:space="preserve">
+    <value>Removed you from the queue.</value>
+  </data>
+  
+  <!-- Hub Module Messages -->
+  <data name="Hub_Summary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="Hub_Counts" xml:space="preserve">
+    <value>Counts</value>
+  </data>
+  <data name="Hub_QueuesEmpty" xml:space="preserve">
+    <value>Queues are empty.</value>
+  </data>
+</root>

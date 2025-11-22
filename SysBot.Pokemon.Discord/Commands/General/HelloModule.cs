@@ -8,7 +8,7 @@ namespace SysBot.Pokemon.Discord
     public class HelloModule : ModuleBase<SocketCommandContext>
     {
         [Command("hello")]
-        [Alias("hi")]
+        [Alias("hi", "hallo", "guten tag", "moin")]
         [Summary("Say hello to the bot and get a response.")]
         public async Task PingAsync()
         {

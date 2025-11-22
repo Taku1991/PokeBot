@@ -20,7 +20,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     #region Medal Achievement Command
 
     [Command("medals")]
-    [Alias("ml")]
+    [Alias("ml", "medaillen", "md")]
     [Summary("Shows your current trade count and medal status")]
     public async Task ShowMedalsCommand()
     {
@@ -43,7 +43,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     #region Trade Commands
 
     [Command("trade")]
-    [Alias("t")]
+    [Alias("t", "tausch", "tauschen", "tau")]
     [Summary("Makes the bot trade you a Pokémon converted from the provided Showdown Set.")]
     [RequireQueueRole(nameof(DiscordManager.RolesTrade))]
     public Task TradeAsync([Summary("Showdown Set")][Remainder] string content)
@@ -90,7 +90,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("hidetrade")]
-    [Alias("ht")]
+    [Alias("ht", "verstecktertausch", "vt")]
     [Summary("Makes the bot trade you a Pokémon without showing trade embed details.")]
     [RequireQueueRole(nameof(DiscordManager.RolesTrade))]
     public Task HideTradeAsync([Summary("Showdown Set")][Remainder] string content)
@@ -134,7 +134,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("tradeUser")]
-    [Alias("tu", "tradeOther")]
+    [Alias("tu", "tradeOther", "tauschBenutzer", "tb")]
     [Summary("Makes the bot trade the mentioned user the attached file.")]
     [RequireSudo]
     public async Task TradeAsyncAttachUser([Summary("Trade Code")] int code, [Remainder] string _)
@@ -157,7 +157,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("tradeUser")]
-    [Alias("tu", "tradeOther")]
+    [Alias("tu", "tradeOther", "tauschBenutzer", "tb")]
     [Summary("Makes the bot trade the mentioned user the attached file.")]
     [RequireSudo]
     public Task TradeAsyncAttachUser([Remainder] string _)
@@ -172,7 +172,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     #region Special Trade Commands
 
     [Command("egg")]
-    [Alias("Egg")]
+    [Alias("Egg", "ei", "Ei")]
     [Summary("Trades an egg generated from the provided Pokémon name.")]
     [RequireQueueRole(nameof(DiscordManager.RolesEgg))]
     public async Task TradeEgg([Remainder] string egg)
@@ -183,7 +183,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("egg")]
-    [Alias("Egg")]
+    [Alias("Egg", "ei", "Ei")]
     [Summary("Trades an egg generated from the provided Pokémon name.")]
     [RequireQueueRole(nameof(DiscordManager.RolesEgg))]
     public async Task TradeEggAsync([Summary("Trade Code")] int code, [Summary("Showdown Set")][Remainder] string content)
@@ -197,6 +197,13 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
         }
 
         content = ReusableActions.StripCodeBlock(content);
+        
+        // Translate German Showdown sets to English
+        if (GermanShowdownTranslator.IsGermanShowdown(content))
+        {
+            content = GermanShowdownTranslator.TranslateToEnglish(content);
+        }
+        
         var set = new ShowdownSet(content);
         var template = AutoLegalityWrapper.GetTemplate(set);
 
@@ -240,7 +247,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("fixOT")]
-    [Alias("fix", "f")]
+    [Alias("fix", "f", "reparieren", "rep")]
     [Summary("Fixes OT and Nickname of a Pokémon you show via Link Trade if an advert is detected.")]
     [RequireQueueRole(nameof(DiscordManager.RolesFixOT))]
     public async Task FixAdOT()
@@ -258,7 +265,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     }
 
     [Command("fixOT")]
-    [Alias("fix", "f")]
+    [Alias("fix", "f", "reparieren", "rep")]
     [Summary("Fixes OT and Nickname of a Pokémon you show via Link Trade if an advert is detected.")]
     [RequireQueueRole(nameof(DiscordManager.RolesFixOT))]
     public async Task FixAdOT([Summary("Trade Code")] int code)
@@ -686,6 +693,12 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
         {
             try
             {
+                // Translate German Showdown sets to English
+                if (GermanShowdownTranslator.IsGermanShowdown(content))
+                {
+                    content = GermanShowdownTranslator.TranslateToEnglish(content);
+                }
+
                 var userRoles = Context.User is SocketGuildUser tradeGUser ? tradeGUser.Roles.Select(r => r.Name) : null;
                 var result = await Helpers<T>.ProcessShowdownSetAsync(content, userRoles: userRoles);
 

@@ -21,7 +21,7 @@ public class InfoModule : ModuleBase<SocketCommandContext>
     private const string repo = "https://github.com/Taku1991/PokeBot";
 
     [Command("info")]
-    [Alias("about", "whoami", "owner")]
+    [Alias("about", "whoami", "owner", "infos", "über")]
     public async Task InfoAsync()
     {
         var app = await Context.Client.GetApplicationInfoAsync().ConfigureAwait(false);

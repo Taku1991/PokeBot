@@ -12,7 +12,7 @@ namespace SysBot.Pokemon.Discord;
 public class HubModule<T> : ModuleBase<SocketCommandContext> where T : PKM, new()
 {
     [Command("status")]
-    [Alias("stats")]
+    [Alias("stats", "statistik", "stat")]
     [Summary("Gets the status of the bot environment.")]
     public async Task GetStatusAsync()
     {

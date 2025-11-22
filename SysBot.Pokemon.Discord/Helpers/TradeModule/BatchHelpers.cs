@@ -19,6 +19,12 @@ public static class BatchHelpers<T> where T : PKM, new()
 
     public static async Task<(T? Pokemon, string? Error, ShowdownSet? Set, string? LegalizationHint)> ProcessSingleTradeForBatch(string tradeContent, IEnumerable<string>? userRoles = null)
     {
+        // Translate German Showdown sets to English
+        if (GermanShowdownTranslator.IsGermanShowdown(tradeContent))
+        {
+            tradeContent = GermanShowdownTranslator.TranslateToEnglish(tradeContent);
+        }
+        
         var result = await Helpers<T>.ProcessShowdownSetAsync(tradeContent, userRoles: userRoles);
 
         if (result.Pokemon != null)
