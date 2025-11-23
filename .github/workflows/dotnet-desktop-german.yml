@@ -1,0 +1,126 @@
+name: .NET Core Desktop (German)
+
+on:
+  push:
+    branches: [ "bilingual-german-showdown" ]
+  pull_request:
+    branches: [ "bilingual-german-showdown" ]
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    outputs:
+      current_version: ${{ steps.read_version.outputs.current_version }}
+      tag_exists: ${{ steps.check_tag.outputs.tag_exists }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Read Current Version
+        id: read_version
+        run: |
+          CURRENT_VERSION=$(grep 'public const string Version' SysBot.Pokemon/Helpers/PokeBot.cs | sed 's/.*Version = "\(.*\)";/\1/')
+          echo "Current version is $CURRENT_VERSION"
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          CURRENT_VERSION=${{ env.CURRENT_VERSION }}
+          if git rev-parse "$CURRENT_VERSION" >/dev/null 2>&1; then
+            echo "Tag $CURRENT_VERSION already exists."
+            echo "tag_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag $CURRENT_VERSION does not exist yet."
+            echo "tag_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: version-check
+    if: needs.version-check.outputs.tag_exists == 'false'
+    runs-on: windows-latest
+    env:
+      Project_Name: SysBot.Pokemon.WinForms/SysBot.Pokemon.WinForms.csproj
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v2
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.Project_Name }} --runtime win-x64
+      - name: Build
+        run: dotnet build ${{ env.Project_Name }} --configuration Release --no-restore
+      - name: Publish
+        run: dotnet publish ${{ env.Project_Name }} --configuration Release --output ./publish /p:PublishSingleFile=true /p:SelfContained=false /p:RuntimeIdentifier=win-x64
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: PokeBot-German
+          path: ./publish
+
+  create-release:
+    needs: [version-check, build]
+    if: needs.version-check.outputs.tag_exists == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Read Current Version
+        id: read_version
+        run: |
+          CURRENT_VERSION=$(grep 'public const string Version' SysBot.Pokemon/Helpers/PokeBot.cs | sed 's/.*Version = "\(.*\)";/\1/')
+          echo "Current version is $CURRENT_VERSION"
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+      - name: Get Recent Changes
+        id: recent_changes
+        run: |
+          # Get the last tag, or use initial commit if no tags exist
+          LAST_TAG=$(git tag --sort=-version:refname | grep "\.german$" | head -n 1)
+          if [ -z "$LAST_TAG" ]; then
+            echo "No previous german tag found, using initial commit"
+            LAST_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          echo "Getting changes since $LAST_TAG"
+          RECENT_CHANGES=$(git log --pretty=format:"- %s" $LAST_TAG..HEAD)
+          echo "RECENT_CHANGES<<EOF" >> $GITHUB_ENV
+          echo "$RECENT_CHANGES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: PokeBot-German
+          path: ./publish
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN_POKEBOT }}
+        with:
+          tag_name: ${{ env.CURRENT_VERSION }}
+          release_name: Release ${{ env.CURRENT_VERSION }} (German)
+          body: |
+            ## German Bilingual Version
+
+            ## Recent Changes
+            ${{ env.RECENT_CHANGES }}
+          draft: false
+          prerelease: true
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN_POKEBOT }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./publish/PokeBot.exe
+          asset_name: PokeBot-German.exe
+          asset_content_type: application/octet-stream
