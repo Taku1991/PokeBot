@@ -9,7 +9,7 @@ public class PokeDataOffsetsPLZA
 {
     public const int BoxFormatSlotSize = 0x148;                          // 328 bytes (box/stored format)
     public const string PLZAID = "0100F43008C44000";
-    public const string PLZAGameVersion = "1.0.3";
+    public const string PLZAGameVersion = "2.0.0";
 
     public const uint MenuOffset = 0x5F30880;                            // 0=Overworld, 1=XMenu, 2=LinkPlay, 3=LinkTrade, 4=InBox
     public const uint ConnectedOffset = 0x5F35DD8;                       // 1=Online, 0=Offline
