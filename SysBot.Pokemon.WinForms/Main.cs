@@ -1383,6 +1383,10 @@ namespace SysBot.Pokemon.WinForms
 
         private void CleanupOldLogFiles()
         {
+            // Skip cleanup if disabled - rely on NLog's built-in MaxArchiveFiles setting
+            if (!LogConfig.EnableLogFileCleanup)
+                return;
+
             try
             {
                 var workingDirectory = Path.GetDirectoryName(Environment.ProcessPath) ?? "";
@@ -1396,8 +1400,8 @@ namespace SysBot.Pokemon.WinForms
                     .OrderByDescending(f => f.LastWriteTime)
                     .ToList();
 
-                // Keep only the last 7 days of logs
-                var cutoffDate = DateTime.Now.AddDays(-7);
+                // Use configured retention days
+                var cutoffDate = DateTime.Now.AddDays(-LogConfig.LogFileRetentionDays);
                 foreach (var file in logFiles.Where(f => f.LastWriteTime < cutoffDate))
                 {
                     try
@@ -1416,11 +1420,10 @@ namespace SysBot.Pokemon.WinForms
                 if (File.Exists(currentLogFile))
                 {
                     var fileInfo = new FileInfo(currentLogFile);
-                    // If current log file is over 100MB, force rotation
-                    if (fileInfo.Length > 100 * 1024 * 1024)
+                    // If current log file exceeds configured max size, log a notice (NLog handles rotation)
+                    if (fileInfo.Length > LogConfig.MaxLogFileSize)
                     {
-                        LogUtil.LogInfo("Current log file exceeds 100MB, forcing rotation", "System");
-                        // NLog will handle the rotation on next write
+                        LogUtil.LogInfo("Current log file exceeds max size, NLog will rotate on next write", "System");
                     }
                 }
             }
