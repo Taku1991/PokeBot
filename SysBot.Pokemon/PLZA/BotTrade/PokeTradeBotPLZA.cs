@@ -382,7 +382,27 @@ public class PokeTradeBotPLZA(PokeTradeHub<PA9> Hub, PokeBotState Config) : Poke
             if (!newEC.SequenceEqual(oldEC))
             {
                 Log("Trade started! Waiting for animation to complete...");
-                await Task.Delay(30_000, token).ConfigureAwait(false);
+                // Wait for animation with status checks every 2 seconds
+                for (int j = 0; j < 15; j++) // 15 * 2 = 30 seconds total
+                {
+                    await Task.Delay(2_000, token).ConfigureAwait(false);
+
+                    // Check if we're still connected during animation
+                    var currentMenuState = await GetMenuState(token).ConfigureAwait(false);
+                    if (currentMenuState == MenuState.Overworld || currentMenuState == MenuState.XMenu)
+                    {
+                        Log("Connection lost during trade animation.");
+                        return PokeTradeResult.NoTrainerFound;
+                    }
+                }
+
+                // Verify we're back in trade box after animation
+                if (!await IsOnMenu(MenuState.InBox, token).ConfigureAwait(false))
+                {
+                    Log("Not in trade box after animation - trade may have failed.");
+                    return PokeTradeResult.NoTrainerFound;
+                }
+
                 return PokeTradeResult.Success;
             }
         }
@@ -887,10 +907,28 @@ public class PokeTradeBotPLZA(PokeTradeHub<PA9> Hub, PokeBotState Config) : Poke
             var checksumBeforeBatchTrade = pokemonBeforeBatchTrade.Checksum;
 
             // Read the partner's offered Pokemon BEFORE we start pressing A to confirm
-            var offeredBatch = await ReadUntilPresentPointer(Offsets.LinkTradePartnerPokemonPointer, 3_000, 0_500, BoxFormatSlotSize, token).ConfigureAwait(false);
+            // For subsequent trades, give partner extra time to offer their Pokemon
+            int maxReadAttempts = currentTradeIndex == 0 ? 1 : 10; // First trade: 1 attempt, others: 10 attempts (5 seconds total)
+            PA9? offeredBatch = null;
+
+            for (int attempt = 0; attempt < maxReadAttempts; attempt++)
+            {
+                offeredBatch = await ReadUntilPresentPointer(Offsets.LinkTradePartnerPokemonPointer, 3_000, 0_500, BoxFormatSlotSize, token).ConfigureAwait(false);
+                if (offeredBatch != null && offeredBatch.Species != 0 && offeredBatch.ChecksumValid)
+                {
+                    break; // Valid Pokemon found
+                }
+
+                if (attempt < maxReadAttempts - 1)
+                {
+                    Log($"Trade {currentTradeIndex + 1}: Partner hasn't offered valid Pokemon yet, waiting... (attempt {attempt + 1}/{maxReadAttempts})");
+                    await Task.Delay(500, token).ConfigureAwait(false);
+                }
+            }
+
             if (offeredBatch == null || offeredBatch.Species == 0 || !offeredBatch.ChecksumValid)
             {
-                Log($"Trade {currentTradeIndex + 1} ended because trainer offer was rescinded too quickly.");
+                Log($"Trade {currentTradeIndex + 1} ended because trainer didn't offer a valid Pokémon after {maxReadAttempts} attempts.");
                 poke.SendNotification(this, $"Trade partner didn't offer a valid Pokémon for trade {currentTradeIndex + 1}. Canceling remaining trades.");
                 SendCollectedPokemonAndCleanup();
                 await DisconnectFromTrade(token).ConfigureAwait(false);
@@ -935,7 +973,7 @@ public class PokeTradeBotPLZA(PokeTradeHub<PA9> Hub, PokeBotState Config) : Poke
                 var nextPokemon = tradesToProcess[currentTradeIndex + 1];
 
                 // Apply AutoOT if needed
-                if (Hub.Config.Legality.UseTradePartnerInfo && !poke.IgnoreAutoOT && PokeBot.CanUseAutoOT(poke) && cachedTradePartnerInfo != null)
+                if (Hub.Config.Legality.UseTradePartnerInfo && !poke.IgnoreAutoOT && cachedTradePartnerInfo != null)
                 {
                     nextPokemon = await ApplyAutoOT(nextPokemon, cachedTradePartnerInfo, sav, token);
                     tradesToProcess[currentTradeIndex + 1] = nextPokemon;
@@ -1033,11 +1071,11 @@ public class PokeTradeBotPLZA(PokeTradeHub<PA9> Hub, PokeBotState Config) : Poke
                 break;
             }
 
-            // Next trade is already prepared - give game a moment to refresh the UI
+            // Next trade is already prepared - give partner time to offer their next Pokemon
             if (currentTradeIndex + 1 < totalBatchTrades)
             {
-                Log($"Ready for next trade ({currentTradeIndex + 2}/{totalBatchTrades})...");
-                await Task.Delay(2_000, token).ConfigureAwait(false);
+                Log($"Ready for next trade ({currentTradeIndex + 2}/{totalBatchTrades}). Waiting for partner to offer Pokemon...");
+                await Task.Delay(5_000, token).ConfigureAwait(false);
             }
         }
 
